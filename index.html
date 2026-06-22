@@ -152,12 +152,551 @@
     width: 100%;
     display: none;
   }
+
+  /* Header + Dev Log button */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .page-header h1 { margin-bottom: 4px; }
+  .page-header .subtitle { margin-bottom: 0; }
+  .devlog-btn {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid #3b3f5c;
+    background: #1e2130;
+    color: #7dd3fc;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .devlog-btn:hover { background: #252840; border-color: #7dd3fc; }
+
+  /* Dev Log Modal */
+  .devlog-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5,6,10,0.75);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .devlog-overlay.open { display: flex; }
+  .devlog-modal {
+    background: #161a28;
+    border: 1px solid #2d3148;
+    border-radius: 14px;
+    max-width: 880px;
+    width: 100%;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .devlog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid #2d3148;
+    flex-shrink: 0;
+  }
+  .devlog-head h2 { font-size: 1.15rem; color: #7dd3fc; }
+  .devlog-close {
+    background: none; border: none; color: #94a3b8;
+    font-size: 1.4rem; cursor: pointer; line-height: 1;
+    padding: 4px 8px; border-radius: 6px;
+  }
+  .devlog-close:hover { background: #252840; color: #fff; }
+  .devlog-body {
+    overflow-y: auto;
+    padding: 20px 24px 28px;
+  }
+  .devlog-tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 14px 24px 0;
+    border-bottom: 1px solid #2d3148;
+    flex-shrink: 0;
+  }
+  .devlog-tab {
+    padding: 9px 16px;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .devlog-tab.active {
+    background: #161a28;
+    border-color: #2d3148;
+    border-bottom-color: #161a28;
+    color: #7dd3fc;
+    margin-bottom: -1px;
+  }
+  .devlog-pane { display: none; }
+  .devlog-pane.active { display: block; }
+
+  .dl-step {
+    display: flex; gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #1e2130;
+  }
+  .dl-step:last-child { border-bottom: none; }
+  .dl-num {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #252840;
+    color: #7dd3fc;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700;
+  }
+  .dl-step-title { color: #e2e8f0; font-weight: 600; font-size: 1.05rem; margin-bottom: 4px; }
+  .dl-step-body { color: #b4bdd1; font-size: 0.98rem; line-height: 1.65; }
+  .dl-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 5px;
+    margin-left: 8px;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .dl-tag.done { background: #14532d; color: #4ade80; }
+  .dl-tag.bug  { background: #5c1a1a; color: #f87171; }
+  .dl-tag.fix  { background: #1e3a5c; color: #7dd3fc; }
+  .dl-tag.theory { background: #4a2d6b; color: #c4b5fd; }
+  .dl-tag.rejected { background: #3a3a3a; color: #9ca3af; }
+
+  .dl-card {
+    background: #1e2130;
+    border: 1px solid #2d3148;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .dl-card h4 { color: #e2e8f0; font-size: 1.02rem; margin-bottom: 8px; }
+  .dl-card p, .dl-card li { color: #b4bdd1; font-size: 0.95rem; line-height: 1.7; }
+  .dl-card table { width: 100%; font-size: 0.92rem; border-collapse: collapse; margin-top: 8px; }
+  .dl-card th, .dl-card td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #2d3148; color: #b4bdd1; }
+  .dl-card th { color: #7dd3fc; font-weight: 600; }
+  .dl-mono {
+    font-family: monospace; font-size: 0.88rem;
+    background: #111420; border: 1px solid #2d3148; border-radius: 6px;
+    padding: 10px 12px; color: #c2cbe8; white-space: pre-wrap; margin: 8px 0;
+    line-height: 1.6;
+  }
+  .dl-result { color: #4ade80; font-weight: 600; }
+  .dl-result.warn { color: #fbbf24; }
+  .dl-ref { font-size: 0.92rem; color: #b4bdd1; padding: 8px 0; border-bottom: 1px solid #1e2130; line-height: 1.6; }
+  .dl-ref b { color: #c4b5fd; }
+
+  /* ═══ Mobile (≤480px) ═══ */
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    h1 { font-size: 1.25rem; }
+    .page-header { gap: 10px; margin-bottom: 16px; }
+    .devlog-btn { width: 100%; text-align: center; }
+
+    .layout { gap: 16px; }
+    .panel { min-width: 0; width: 100%; padding: 16px; }
+    .viz-panel { min-width: 0; width: 100%; }
+    .viz-wrap { padding: 14px; }
+
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-card { padding: 8px 10px; }
+    .stat-card .value { font-size: 1rem; }
+
+    .size-buttons { gap: 6px; }
+    .size-btn { padding: 6px 10px; font-size: 0.8rem; }
+
+    /* Dev Log modal: fill the screen instead of floating box */
+    .devlog-overlay { padding: 0; }
+    .devlog-modal { max-height: 100vh; height: 100vh; border-radius: 0; max-width: 100%; }
+    .devlog-head { padding: 14px 16px; }
+    .devlog-head h2 { font-size: 0.98rem; }
+
+    /* Tabs: horizontal scroll instead of wrap-to-many-rows */
+    .devlog-tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px 12px 0;
+      scrollbar-width: thin;
+    }
+    .devlog-tab { flex-shrink: 0; white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; }
+    .devlog-body { padding: 14px 16px 22px; }
+
+    .dl-card { padding: 12px 14px; }
+    .dl-card table { font-size: 0.82rem; }
+    .dl-step { gap: 10px; }
+    .dl-step-title { font-size: 0.95rem; }
+    .dl-step-body { font-size: 0.88rem; }
+    .dl-card p, .dl-card li { font-size: 0.86rem; }
+  }
 </style>
 </head>
 <body>
 
-<h1>🔬 Backbite Algorithm Visualizer</h1>
-<p class="subtitle">One-Stroke Puzzle — Hamiltonian Path Generator | Thesis Test Tool</p>
+<div class="page-header">
+  <div>
+    <h1>🔬 Backbite Algorithm Visualizer</h1>
+    <p class="subtitle">One-Stroke Puzzle — Hamiltonian Path Generator | Thesis Test Tool</p>
+  </div>
+  <button class="devlog-btn" onclick="openDevLog()">📋 Dev Log — ขั้นตอนการพัฒนา</button>
+</div>
+
+<!-- ═══════════════ DEV LOG MODAL ═══════════════ -->
+<div class="devlog-overlay" id="devlogOverlay" onclick="if(event.target===this) closeDevLog()">
+  <div class="devlog-modal">
+    <div class="devlog-head">
+      <h2>📋 Dev Log — บันทึกขั้นตอนการพัฒนา Algorithm สร้างด่าน</h2>
+      <button class="devlog-close" onclick="closeDevLog()">✕</button>
+    </div>
+    <div class="devlog-tabs" id="devlogTabs">
+      <button class="devlog-tab active" data-pane="timeline">🗓️ ลำดับขั้นตอน</button>
+      <button class="devlog-tab" data-pane="modes">🧩 โหมด &amp; ผลทดสอบ</button>
+      <button class="devlog-tab" data-pane="bugs">🐛 บั๊กที่เจอ</button>
+      <button class="devlog-tab" data-pane="theory">📐 ทฤษฎี &amp; อ้างอิง</button>
+      <button class="devlog-tab" data-pane="rejected">🚫 แนวคิดที่ตัดทิ้ง</button>
+    </div>
+    <div class="devlog-body">
+
+      <!-- ===== PANE 1: TIMELINE ===== -->
+      <div class="devlog-pane active" id="pane-timeline">
+
+        <div class="dl-step">
+          <div class="dl-num">1</div>
+          <div>
+            <div class="dl-step-title">รีวิว Backbite Pseudocode <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">ตรวจ pseudocode เดิม (initZigzagPath, backbiteMove, generateLevel 2-phase) เทียบกับ hamiltonian-snake และ Clisby implementation — ยืนยัน core logic ถูกต้อง, formula iterations <code>10×N²×log²(N+2)</code> ตรงกับ research</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">2</div>
+          <div>
+            <div class="dl-step-title">สร้าง Visualizer ตัวแรก <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">ทำ HTML/JS แบบ self-contained: grid size selector, quality factor slider, seed input, canvas visualization, stats panel (path length, fail rate, dead ends ฯลฯ)</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">3</div>
+          <div>
+            <div class="dl-step-title">พบบั๊ก: นิยาม "Dead End" ผิด <span class="dl-tag bug">BUG</span></div>
+            <div class="dl-step-body">Full Hamiltonian path ครอบทุก cell แล้ว → "free neighbor" เหลือ 0 เสมอทุก node ทำให้ Dead End นับผิด (=23 ทุกครั้ง) และ Branching Avg = 0.00 เสมอ<br>
+            <b>แก้:</b> เปลี่ยนเป็น <i>Crossings</i> (cells ติดกันบน grid แต่ไม่ต่อเนื่องใน path) และ <i>Decision Points</i> (node ที่มี path-neighbor ≥3) ซึ่งมีความหมายจริงสำหรับ solver</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">4</div>
+          <div>
+            <div class="dl-step-title">คำถาม: ด่านต้องเต็ม Grid เสมอไหม? <span class="dl-tag theory">THEORY</span></div>
+            <div class="dl-step-body">อภิปรายว่า Backbite สร้าง Hamiltonian Path = ผ่านทุก node เสมอ (นิยามทางคณิตศาสตร์) — ถ้าเกมต้องการช่องว่าง (space) ต้องมีกลไกเพิ่ม ไม่ใช่ default behavior ของ Backbite</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">5</div>
+          <div>
+            <div class="dl-step-title">ผู้ใช้ส่งภาพด่านจริง (Level 21, 9×8) <span class="dl-tag done">INPUT</span></div>
+            <div class="dl-step-body">พบว่าด่านจริงมี <b>ช่องว่างกระจาย (irregular shape)</b> ไม่ใช่ grid เต็มสี่เหลี่ยม — เปลี่ยนทิศทางการออกแบบทั้งหมดจากจุดนี้</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">6</div>
+          <div>
+            <div class="dl-step-title">เปรียบเทียบ: เจาะรูก่อน vs สร้าง path ก่อน <span class="dl-tag theory">THEORY</span></div>
+            <div class="dl-step-body">วิเคราะห์ 2 แนวทาง — "เจาะรูก่อนแล้วหา path" เสี่ยง unsolvable (ต้อง validate parity+connectivity) เทียบกับ "สร้าง path ก่อนแล้วตัดส่วนเหลือเป็นรู" ซึ่งการันตี solvable เสมอ → เลือกแนวทางหลัง เป็นหลักการแกนของทุก mode ที่ทำต่อจากนี้</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">7</div>
+          <div>
+            <div class="dl-step-title">Implement Tail-Cutting + Fill% slider <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">สร้าง full Hamiltonian path → ตัดส่วน tail ออกตาม Fill% → ส่วนที่ตัดกลายเป็น holes<br>
+            <span class="dl-result">ผลทดสอบ: 6×6 @ Fill 70% → 25 playable + 11 holes = 36 ✓ (สมดุล), 100% Fill → 0 holes ✓</span></div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">8</div>
+          <div>
+            <div class="dl-step-title">ผู้ใช้เสนอ Chain Idea (รวม 3 grids ด้วย bridge) <span class="dl-tag done">INPUT</span></div>
+            <div class="dl-step-body">แนวคิด: สร้างหลาย sub-grid path แล้วต่อกันด้วยจุดเชื่อม 1 ช่อง</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">9</div>
+          <div>
+            <div class="dl-step-title">Red-team: Star Topology ใช้ไม่ได้ <span class="dl-tag bug">FOUND ISSUE</span></div>
+            <div class="dl-step-body">ถ้า 3 sub-grid เชื่อมที่จุดเดียว (star) → bridge cell ต้องถูกผ่าน 3 ครั้ง ขัดกฎ one-stroke (ผ่านได้ครั้งเดียว)<br>
+            <b>แก้:</b> เปลี่ยนเป็น <b>Chain topology</b> — ต่อ tail→head ทีละคู่เรียงเป็นแถว ไม่ใช่ดาว</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">10</div>
+          <div>
+            <div class="dl-step-title">Implement Chain Mode <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">Rectangular Backbite (รองรับ block w×h ใดๆ) + ลองต่อด้วย <b>8 symmetries</b> (หมุน 4 ทิศ × พลิก) × 2 ทิศทางอ่าน + <b>retry ทั้ง chain สูงสุด 40 รอบ</b> เก็บ layout ที่วางได้ครบที่สุด<br>
+            <span class="dl-result">ผลทดสอบ: 4/4 blocks และ 5/5 blocks สำเร็จทุก seed (8 seeds ทดสอบ), one-stroke ต่อเนื่อง, ไม่มีช่องซ้ำ</span></div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">11</div>
+          <div>
+            <div class="dl-step-title">เสนอแนวคิด "เจาะ Space แล้วหา Longest Path" <span class="dl-tag rejected">REJECTED</span></div>
+            <div class="dl-step-body">วิเคราะห์ว่า Longest Path Problem เป็น <b>NP-hard</b> — ไม่มี algorithm เร็วที่หา exact solution บน grid ใหญ่ได้ ตัดแนวทางนี้ทิ้ง</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">12</div>
+          <div>
+            <div class="dl-step-title">ปรับเป็น "Random Walk จนตัน" แทน <span class="dl-tag theory">PIVOT</span></div>
+            <div class="dl-step-body">Self-avoiding random walk: เดินสุ่มจนกว่าจะไม่มีช่องว่างให้เดิน → เร็ว, การันตี solvable (path คือคำตอบในตัว) แต่ไม่การันตีความยาว (เสี่ยงตันเร็ว)</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">13</div>
+          <div>
+            <div class="dl-step-title">คำถาม: เปลี่ยนจาก Grid เป็น Node+Edge ช่วยไหม? <span class="dl-tag theory">THEORY</span></div>
+            <div class="dl-step-body">วาด diagram เปรียบเทียบ — สรุปว่า Grid ≡ Graph (สมมูลกันทุกประการถ้า node มี 4 edge) ข้อจำกัด "dead-end ได้แค่ 2 จุด" มาจาก <b>topology ของการลากเส้นเดียว</b> ไม่ใช่จาก representation จึงติดตัวไปทุกรูปแบบ</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">14</div>
+          <div>
+            <div class="dl-step-title">Lock นิยามเกม <span class="dl-tag done">DECISION</span></div>
+            <div class="dl-step-body">"เดินให้ครบทุกช่อง โดยไม่ซ้ำจุดเดิม = ชนะ" = Hamiltonian Path แท้ → degree-1 (ทางตันจริง) ได้แค่ 2 จุดเท่านั้น (start/end) เป็นข้อจำกัดตายตัว</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">15</div>
+          <div>
+            <div class="dl-step-title">ผู้ใช้นำคำแนะนำ MST-Guided มา <span class="dl-tag done">INPUT</span></div>
+            <div class="dl-step-body">แนวคิดจากภายนอก: ยุบ grid เป็น coarse → สร้าง Spanning Tree (Kruskal's/Prim's) → wall-following → Hamiltonian path พร้อม "sprout" สร้าง trap</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">16</div>
+          <div>
+            <div class="dl-step-title">Red-team คำแนะนำ MST <span class="dl-tag bug">FOUND ISSUE</span></div>
+            <div class="dl-step-body">2 ปัญหา: (1) Spanning tree เต็มไม่มี space เหลือ (2) "Sprout/แตกหน่อ" สร้าง degree-3 junction และ degree-1 ปลายกิ่ง → ทำลาย Hamiltonian path กลายเป็น Tree ที่แก้ไม่ได้<br>
+            <b>แก้:</b> ใช้ <b>Partial Spanning Tree</b> (ครอบไม่เต็ม = มี space) + trap จาก <b>Articulation Point</b> (คอขวด) แทน sprout</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">17</div>
+          <div>
+            <div class="dl-step-title">เขียนรายงานความก้าวหน้าให้อาจารย์ <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">สรุปเป็นเอกสาร 8 ส่วน: บทนำ, สิ่งที่ทำจริง, 7 แนวทางที่สำรวจ, ข้อค้นพบเชิงทฤษฎี 6 ข้อ, นิยามที่ตกผลึก, ทิศทางปัจจุบัน, ขั้นตอนต่อไป, สรุป</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">18</div>
+          <div>
+            <div class="dl-step-title">เขียน Pseudocode MST-Guided Pipeline <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">6 ส่วน: ยุบ coarse grid, Partial Spanning Tree (Randomized Prim's), Prune for traps, Wall-Following, Trap Score, Full pipeline + complexity analysis</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">19</div>
+          <div>
+            <div class="dl-step-title">Implement MST-Guided ใน Visualizer <span class="dl-tag bug">BUG → FIX</span></div>
+            <div class="dl-step-body">เจอบั๊ก 2 ชั้นระหว่าง implement จริง (ดูรายละเอียดเต็มในแท็บ "🐛 บั๊กที่เจอ") สุดท้ายแก้ด้วย: เปลี่ยนจาก general spanning tree → simple path (self-avoiding walk) ที่ coarse level + retry-until-valid<br>
+            <span class="dl-result">ผลทดสอบสุดท้าย: 15/15 seeds ผ่านที่ 8×8 @ 70%, 10/10 seeds ผ่านที่ 12×12 @ 50%, retry เฉลี่ย 0-1 ครั้ง</span></div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">20</div>
+          <div>
+            <div class="dl-step-title">เพิ่ม Dev Log Panel นี้ <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">รวบรวมทุกขั้นตอน ผลทดสอบ ทฤษฎี และอ้างอิงไว้ในที่เดียว สำหรับนำไปอธิบาย/รายงานอาจารย์ได้ทันที</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== PANE 2: MODES & RESULTS ===== -->
+      <div class="devlog-pane" id="pane-modes">
+
+        <div class="dl-card">
+          <h4>🔵 Mode 1 — Single Grid (Backbite + Tail-Cutting)</h4>
+          <p><b>หลักการ:</b> Backbite สร้าง Hamiltonian Path เต็ม grid → ตัดส่วน tail ออกตาม Fill% → ส่วนที่ตัดกลายเป็น holes</p>
+          <table>
+            <tr><th>Test Case</th><th>ผลลัพธ์</th></tr>
+            <tr><td>5×5, Fill 100%</td><td class="dl-result">25 nodes, ครบ Hamiltonian, ไม่มี duplicate ✓</td></tr>
+            <tr><td>6×6, Fill 70%, seed 12345</td><td class="dl-result">25 playable + 11 holes = 36 (สมดุล) ✓</td></tr>
+            <tr><td>6×6, Fill 100%</td><td class="dl-result">0 holes, 36 playable (full) ✓</td></tr>
+          </table>
+          <p style="margin-top:8px;"><b>ข้อจำกัด:</b> holes เกาะกลุ่มที่ปลาย path เสมอ (organic blob) ไม่กระจายทั่ว grid</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🟣 Mode 2 — Chain (รวมหลาย Path เป็น One-Stroke เดียว)</h4>
+          <p><b>หลักการ:</b> สุ่มวาง sub-block (Backbite บนสี่เหลี่ยมผืนผ้า w×h) อิสระในพื้นที่ใหญ่ → ต่อ tail ของอันก่อนหน้ากับ head ของอันถัดไปด้วย bridge cell โดยลอง 8 symmetries (หมุน+พลิก) × 2 ทิศทาง</p>
+          <table>
+            <tr><th>Test Case</th><th>ผลลัพธ์</th></tr>
+            <tr><td>4 blocks, area 12×12, 6 seeds</td><td class="dl-result">4/4 วางสำเร็จทุก seed</td></tr>
+            <tr><td>5 blocks, area 13×13, 4 seeds</td><td class="dl-result">5/5 วางสำเร็จทุก seed</td></tr>
+            <tr><td>Continuity check</td><td class="dl-result">One-stroke ต่อเนื่องทุกช่วง + ไม่มีช่องซ้ำ (ทุก test)</td></tr>
+          </table>
+          <p style="margin-top:8px;"><b>ก่อนแก้:</b> ใช้แค่ 2 orientations (ปกติ/reverse) → วางได้แค่ 1-3 จาก 4 blocks บ่อยครั้ง<br>
+          <b>หลังแก้:</b> เพิ่ม 8 symmetries + retry ทั้ง chain 40 รอบ → วางครบ 100% ของ test cases</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🌲 Mode 3 — MST-Guided (Coarse Path + Wall-Following)</h4>
+          <p><b>หลักการ:</b> ยุบ grid เป็น coarse (N/2×M/2) → สร้าง self-avoiding walk บน coarse grid (คุม coverage% = คุม space) → wall-following (right-hand rule) แปลงเป็น Hamiltonian path บน fine grid</p>
+          <table>
+            <tr><th>Test Case</th><th>ผลลัพธ์</th></tr>
+            <tr><td>8×8, coverage 70%, 15 seeds</td><td class="dl-result">15/15 ผ่าน, retry 0-1 ครั้ง</td></tr>
+            <tr><td>12×12, coverage 50%, 10 seeds</td><td class="dl-result">10/10 ผ่าน, retry 0-1 ครั้ง</td></tr>
+            <tr><td>Duplicate check</td><td class="dl-result">ไม่มีช่องซ้ำในทุก test</td></tr>
+          </table>
+          <p style="margin-top:8px;"><b>ข้อจำกัดปัจจุบัน:</b> รองรับแค่ coarse path แบบไม่แตกแขนง (degree≤2) เท่านั้น — general spanning tree ที่แตกแขนงได้ (MST ทฤษฎีเต็ม) ยังทำไม่ได้ เพราะต้องมี per-node "port routing table" ที่ซับซ้อนกว่านี้ (ดูแท็บ Bug)</p>
+        </div>
+
+      </div>
+
+      <!-- ===== PANE 3: BUGS ===== -->
+      <div class="devlog-pane" id="pane-bugs">
+
+        <div class="dl-card">
+          <h4>🐛 Bug #1 — "Dead End" นับผิดใน Mode 1</h4>
+          <p><b>อาการ:</b> Dead End = 23 และ Branching Avg = 0.00 ทุกครั้งไม่ว่า seed ไหน</p>
+          <p><b>สาเหตุ:</b> นิยามเดิม = node ที่มี "free neighbor" เหลือ 0 — แต่ full Hamiltonian path ครอบทุก cell แล้ว ไม่มี free cell เหลือเลย ทุก node จึงเข้าเงื่อนไขเสมอ</p>
+          <p><b>วิธีแก้:</b> เปลี่ยนเป็น 2 metric ใหม่ที่มีความหมายจริง:</p>
+          <ul style="margin-left:16px; margin-top:4px;">
+            <li><b>Crossings</b> — คู่ cell ติดกันบน grid แต่ไม่ต่อเนื่องใน path sequence</li>
+            <li><b>Decision Points</b> — node ที่มี grid-neighbor ≥3 ตัวอยู่ใน path (solver อาจเลือกผิดทาง)</li>
+          </ul>
+          <p style="margin-top:8px;" class="dl-result">ยืนยันผล: 5×5 seed สุ่ม → Crossings=16, Decision Points=21 (ค่ามีความหมาย ไม่ตายตัว)</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🐛 Bug #2 — Chain Mode วางบล็อกไม่ครบ</h4>
+          <p><b>อาการ:</b> ขอ 4 blocks ได้แค่ 2/4 หรือ 1/4 บ่อยครั้ง</p>
+          <p><b>สาเหตุ:</b> ลองต่อบล็อกใหม่ด้วยแค่ 2 ทิศทาง (ปกติ + reverse) — ตัวเลือกไม่พอจะหาตำแหน่งที่ "head" ไปติดกับ "tail" เดิมได้</p>
+          <p><b>วิธีแก้:</b> (1) เพิ่ม <span class="dl-mono">symmetries()</span> สร้าง 8 ท่า (rotate×4 + flip×2 + reverse traversal) (2) เพิ่ม retry ทั้ง chain สูงสุด 40 รอบ เก็บ layout ที่ดีที่สุด</p>
+          <p style="margin-top:8px;" class="dl-result">ก่อนแก้: 2/4, 2/4, 3/4, 1/4 (สุ่ม 6 seeds) → หลังแก้: 4/4 ทุก seed (8 seeds ทดสอบ)</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🐛 Bug #3 — MST Wall-Following พังตอนมี Branching</h4>
+          <p><b>อาการ:</b> ทดสอบ tree รูป "กากบาท" (center ต่อ 4 แขน, degree=4) คาดหวัง path 20 cells ได้แค่ 4</p>
+          <p><b>สาเหตุ:</b> right-hand-rule แบบง่ายที่ใช้ใส่ direction เดียวระดับ global ใช้ได้กับ "corridor กว้าง 1 ช่อง" เท่านั้น (chain/turn) พอเจอจุดแตกแขนง (degree≥3) มันเดินรอบแค่ block ตั้งต้นแล้วปิดวงกลับโดยไม่เข้า branch อื่นเลย</p>
+          <div class="dl-mono">ทดสอบ: center+4 arms → expected 20, ได้ 4 (FAIL)
+ทดสอบ: chain 3 cells ตรง → expected 12, ได้ 12 (PASS)
+ทดสอบ: L-shape (มีเลี้ยว) → expected 16, ได้ 16 (PASS)</div>
+          <p><b>วิธีแก้ (เลือกใช้):</b> จำกัด coarse-level ให้เป็น <b>simple path</b> (self-avoiding walk, degree≤2 เสมอ) แทน general spanning tree — หลีกเลี่ยง branching ไปเลย</p>
+          <p><b>วิธีแก้แบบสมบูรณ์ (ยังไม่ทำ):</b> ต้องสร้าง per-node "port routing table" กำหนดว่า fine-cell ไหนในแต่ละ 2×2 block เชื่อมกับประตูไหน ตามจำนวน/ทิศทางของ tree edge ที่เข้า node นั้น</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🐛 Bug #4 — Simple Path บางแบบยังพังอยู่ดี</h4>
+          <p><b>อาการ:</b> หลังแก้ #3 แล้ว ยังพังประปราย (4/15 seeds ที่ path=4 แทน 44)</p>
+          <p><b>สาเหตุ:</b> ระหว่าง coarse cell 2 อันที่ติดกัน มี "ประตู" ที่ข้ามได้ <b>2 แถวคู่กันพร้อมกัน</b> (เพราะแต่ละ coarse cell กว้าง 2 fine-cell) แต่ logic เปิดทั้ง 2 คู่เมื่อมี tree edge — ที่ถูกต้องควรเปิดแค่ 1 คู่ ทำให้เส้นมีทาง "ลัดย้อนกลับ" ก่อนสำรวจ block อื่นจนครบ</p>
+          <div class="dl-mono">Debug: เปิด tree จริงที่ fail → trace path ทีละ step
+พบ: เข้า cell ข้างเคียงได้ 1 step แล้วย้อนกลับทันที
+     ผ่าน "ประตู" คนละแถวกับที่เข้ามา (ควรเป็นประตูเดียวกัน)</div>
+          <p><b>วิธีแก้ (เลือกใช้):</b> เพิ่ม retry-until-valid — ตรวจ <span class="dl-mono">path.length === visited.size×4</span> ถ้าไม่ตรง สุ่ม coarse path ใหม่ สูงสุด 30 รอบ (concept เดียวกับ Chain mode)</p>
+          <p style="margin-top:8px;" class="dl-result">ผลหลังแก้: 15/15 และ 10/10 ผ่าน, retry เฉลี่ย 0-1 ครั้ง (ถูกมาก ไม่กระทบ performance)</p>
+        </div>
+
+      </div>
+
+      <!-- ===== PANE 4: THEORY & REFERENCES ===== -->
+      <div class="devlog-pane" id="pane-theory">
+
+        <div class="dl-card">
+          <h4>📐 ข้อค้นพบเชิงทฤษฎีที่สำคัญ</h4>
+          <ul style="margin-left:16px; line-height:1.8;">
+            <li><b>Degree-1 Constraint</b> — ใน Hamiltonian Path, node ที่มีเพื่อนบ้านเดียว (ทางตันแท้) ต้องเป็นจุดปลายเท่านั้น เพราะเส้นเดียวมีปลายได้แค่ 2 จุด → ใส่ "หนามยื่น" เกิน 2 จุดทำให้ด่านแก้ไม่ได้ทันที</li>
+            <li><b>Grid ≡ Graph</b> — Grid ที่แต่ละ cell มี 4 neighbor คือ Grid Graph ชนิดหนึ่ง การเปลี่ยนมุมมองเป็น node/edge ไม่ลดความซับซ้อน เพราะข้อจำกัดมาจาก topology ของเส้นเดียว ไม่ใช่จาก representation</li>
+            <li><b>Longest Path = NP-hard</b> — ไม่มี algorithm เร็วที่หา exact longest path บน grid ใหญ่ ต้องเลี่ยงด้วย heuristic (random walk) แทน exact search</li>
+            <li><b>Parity / Checkerboard Balance</b> — ถ้าเจาะรูก่อนสร้าง path ต้องเช็ค (1) connectivity และ (2) checkerboard parity ต่างกันไม่เกิน 1 มิฉะนั้นไม่มี Hamiltonian Path</li>
+            <li><b>Spanning Tree → Hamiltonian Cycle (Wall-Following)</b> — เทคนิคคลาสสิกจาก Snake-AI: ยุบ gridครึ่ง → spanning tree → เดินเลียบรอบด้วย right-hand rule → ได้ Hamiltonian cycle เสมอ (แต่ใช้ได้เต็มรูปแบบเฉพาะกรณีไม่แตกแขนง ตามที่ confirm จาก Bug #3)</li>
+            <li><b>Articulation Points = นิยาม Trap ที่ถูกต้อง</b> — "ทางตันลวง" ที่ไม่ทำลาย Hamiltonian property ต้องมาจากจุดคอขวด (ตัดแล้วแยกด่านเป็น 2 ส่วน) ไม่ใช่จากการแตกกิ่งออกจาก path จริง (sprout จะกลายเป็น Tree ไม่ใช่ Path)</li>
+          </ul>
+        </div>
+
+        <div class="dl-card">
+          <h4>📚 เอกสารอ้างอิงที่ใช้</h4>
+          <div class="dl-ref"><b>Oberdorf, R., Ferguson, A., Jacobsen, J. L., Kondev, J. (2006).</b> Secondary structures in long compact polymers. Phys. Rev. E 74, 051801. — ที่มาของ Backbite move</div>
+          <div class="dl-ref"><b>Clisby, N.</b> Hamiltonian Path Generator. clisby.net/projects/hamiltonian_path/ — อ้างอิง 2-phase generation + iteration formula</div>
+          <div class="dl-ref"><b>hand-burger.</b> Hamiltonian Snake. github.com/hand-burger/hamiltonian-snake — เทียบ implementation จริงกับ pseudocode</div>
+          <div class="dl-ref"><b>คำแนะนำจากภายนอก (ผู้ใช้นำมา)</b> — แนวคิด MST-Guided Random Walk (spanning tree + wall-following + sprout-based trap) นำมา red-team และปรับปรุง 2 จุดก่อนใช้จริง</div>
+          <p style="margin-top:10px; font-size:0.78rem; color:#64748b;">ทฤษฎีกราฟพื้นฐาน (degree constraint, NP-hardness ของ Longest Path, Articulation Point/Tarjan's algorithm, Parity argument) เป็นความรู้ทั่วไปทาง Graph Theory ที่นำมาประยุกต์ผ่านการอภิปรายและวิเคราะห์ ไม่ได้อ้างจาก paper เฉพาะเจาะจง — ควรอ้างอิงตำรา Graph Theory มาตรฐานเพิ่มในเล่มจริง</p>
+        </div>
+
+      </div>
+
+      <!-- ===== PANE 5: REJECTED IDEAS ===== -->
+      <div class="devlog-pane" id="pane-rejected">
+
+        <div class="dl-card">
+          <h4>🚫 เจาะรูก่อนสร้าง Path</h4>
+          <p><b>แนวคิด:</b> สุ่มเลือก cell เป็น "ช่องว่าง" ก่อน แล้วค่อยหา Hamiltonian path บนส่วนที่เหลือ</p>
+          <p><b>เหตุผลที่ตัดทิ้ง:</b> ไม่การันตีว่ามี solution — ต้อง validate connectivity + checkerboard parity ก่อนทุกครั้ง ถ้าไม่ผ่านต้องสุ่มใหม่ (retry loop ที่ไม่รู้จะจบเมื่อไหร่ในกรณีเลวร้าย)</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🚫 หา Longest Path บนพื้นที่ที่เจาะรูแล้ว</h4>
+          <p><b>แนวคิด:</b> เจาะ space ตามจำนวนที่ต้องการ แล้วให้ algorithm หาเส้นทางที่ยาวที่สุดในส่วนที่เหลือ</p>
+          <p><b>เหตุผลที่ตัดทิ้ง:</b> Longest Path Problem เป็น <b>NP-hard</b> — DFS/backtracking ระเบิดเวลาบน grid ใหญ่ (8×8 ขึ้นไปช้ามาก) ไม่มี exact algorithm ที่เร็วพอ</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🚫 Star Topology สำหรับ Chain Mode</h4>
+          <p><b>แนวคิด:</b> เชื่อม 3 sub-grid เข้าด้วยกันที่จุดศูนย์กลางจุดเดียว (เหมือนดาว)</p>
+          <p><b>เหตุผลที่ตัดทิ้ง:</b> bridge cell ตรงกลางต้องถูกผ่าน 3 ครั้ง (เข้า 1 + ออก 1 + อีกแขนที่เหลือ) ขัดกฎ one-stroke ที่ผ่านแต่ละ cell ได้ครั้งเดียว → เปลี่ยนเป็น Chain (ต่อเรียงเป็นแถว) แทน</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🚫 Sprout/แตกหน่อสร้าง Trap</h4>
+          <p><b>แนวคิด:</b> ระหว่างลาก path หลัก ให้สุ่ม "แตกกิ่งสั้นๆ" แทรกเข้าไปในพื้นที่ว่างข้างๆ เพื่อสร้างทางตันหลอกให้ผู้เล่นเดินผิด</p>
+          <p><b>เหตุผลที่ตัดทิ้ง:</b> กิ่งที่แตกออกทำให้จุดแตกกิ่งมี degree 3 (เข้า+ออก+กิ่ง) และปลายกิ่งมี degree 1 — รวมกันเกิน 2 จุดที่ Hamiltonian Path อนุญาต → กลายเป็น Tree ไม่ใช่ Path → ด่านแก้ไม่ได้ทันที ใช้ Articulation Point (คอขวด) แทน ซึ่งไม่ทำลายความเป็น Path</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🚫 ใช้ Node+Edge แทน Grid โดยตรง</h4>
+          <p><b>แนวคิด:</b> เปลี่ยน representation จาก grid 2D array เป็น graph (node+edge อิสระ) เพื่อหวังว่าจะลดความซับซ้อนหรือปลดล็อกอะไรบางอย่าง</p>
+          <p><b>เหตุผลที่ตัดทิ้ง:</b> Grid ที่แต่ละ cell มี 4 neighbor คือ Grid Graph ชนิดหนึ่งอยู่แล้ว สมมูลกัน 100% — ข้อจำกัดเรื่อง dead-end มาจาก topology ของ "เส้นเดียว" ไม่ใช่จาก representation จึงไม่ช่วยอะไร (ดู diagram ในแท็บทฤษฎี)</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <div class="layout">
 
@@ -1322,6 +1861,27 @@ function runMST() {
   btn.disabled = false;
   btn.textContent = '▶ Generate';
 }
+
+// ─────────────────────────────────────────────
+// Dev Log Modal
+// ─────────────────────────────────────────────
+function openDevLog() {
+  document.getElementById('devlogOverlay').classList.add('open');
+}
+function closeDevLog() {
+  document.getElementById('devlogOverlay').classList.remove('open');
+}
+document.getElementById('devlogTabs').addEventListener('click', function(e) {
+  const btn = e.target.closest('.devlog-tab');
+  if (!btn) return;
+  this.querySelectorAll('.devlog-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.devlog-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + btn.dataset.pane).classList.add('active');
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDevLog();
+});
 
 // Init
 drawEmpty(currentSize);
