@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backbite Algorithm Visualizer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #7dd3fc;
+    margin-bottom: 4px;
+  }
+  .subtitle { color: #64748b; font-size: 0.85rem; margin-bottom: 24px; }
+
+  .layout { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+
+  /* Controls */
+  .panel {
+    background: #1e2130;
+    border: 1px solid #2d3148;
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 280px;
+  }
+  .panel h2 { font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.82rem; color: #94a3b8; margin-bottom: 6px; }
+  .field input[type=range] { width: 100%; accent-color: #7dd3fc; }
+  .field .val { color: #7dd3fc; font-weight: 700; font-size: 1rem; }
+
+  .size-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .size-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid #2d3148;
+    background: #252840;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+  }
+  .size-btn:hover { border-color: #7dd3fc; color: #7dd3fc; }
+  .size-btn.active { background: #1d4ed8; border-color: #3b82f6; color: #fff; }
+
+  .gen-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .gen-btn:hover { opacity: 0.88; }
+  .gen-btn:active { transform: scale(0.98); }
+  .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card {
+    background: #252840;
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid #2d3148;
+  }
+  .stat-card .label { font-size: 0.72rem; color: #64748b; margin-bottom: 2px; }
+  .stat-card .value { font-size: 1.1rem; font-weight: 700; color: #e2e8f0; }
+  .stat-card .value.good { color: #4ade80; }
+  .stat-card .value.warn { color: #fbbf24; }
+  .stat-card .value.bad  { color: #f87171; }
+
+  .log-box {
+    background: #111420;
+    border: 1px solid #2d3148;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    color: #64748b;
+    height: 120px;
+    overflow-y: auto;
+    margin-top: 14px;
+    font-family: monospace;
+  }
+  .log-box .line { line-height: 1.6; }
+  .log-box .line.ok { color: #4ade80; }
+  .log-box .line.info { color: #7dd3fc; }
+  .log-box .line.warn { color: #fbbf24; }
+
+  /* Grid Visualizer */
+  .viz-panel {
+    flex: 1;
+    min-width: 320px;
+  }
+  .viz-wrap {
+    background: #1e2130;
+    border: 1px solid #2d3148;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .viz-wrap h2 { font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; align-self: flex-start; }
+
+  canvas {
+    border-radius: 8px;
+    background: #111420;
+    max-width: 100%;
+  }
+
+  .legend {
+    display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap;
+    font-size: 0.78rem; color: #94a3b8;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* Path list toggle */
+  .path-toggle {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: #7dd3fc;
+    cursor: pointer;
+    text-decoration: underline;
+    align-self: flex-start;
+  }
+  .path-list {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: #64748b;
+    background: #111420;
+    border: 1px solid #2d3148;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 6px;
+    max-height: 100px;
+    overflow-y: auto;
+    width: 100%;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>🔬 Backbite Algorithm Visualizer</h1>
+<p class="subtitle">One-Stroke Puzzle — Hamiltonian Path Generator | Thesis Test Tool</p>
+
+<div class="layout">
+
+  <!-- Controls -->
+  <div style="display:flex; flex-direction:column; gap:16px; min-width:280px;">
+
+    <div class="panel">
+      <h2>⚙️ Parameters</h2>
+
+      <div class="field">
+        <label>Mode</label>
+        <div class="size-buttons" id="modeBtns">
+          <button class="size-btn active" data-mode="single">Single Grid</button>
+          <button class="size-btn" data-mode="chain">Chain</button>
+          <button class="size-btn" data-mode="mst">MST-Guided</button>
+        </div>
+      </div>
+
+      <!-- MST-Guided controls -->
+      <div id="mstControls" style="display:none;">
+        <div class="field">
+          <label>Fine Grid Size (เลขคู่) — <span class="val" id="mstSizeVal">8×8</span></label>
+          <input type="range" id="mstSizeSlider" min="4" max="16" step="2" value="8">
+        </div>
+        <div class="field">
+          <label>Tree Coverage % (คุม space) — <span class="val" id="mstCovVal">70</span>%</label>
+          <input type="range" id="mstCovSlider" min="20" max="100" step="5" value="70">
+          <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">
+            100% = ครอบเต็ม coarse grid (ไม่มีรู) | ต่ำ = รูมาก กระจายทั่ว grid
+          </div>
+        </div>
+      </div>
+
+      <!-- Chain-only controls -->
+      <div id="chainControls" style="display:none;">
+        <div class="field">
+          <label>Global Area — <span class="val" id="areaVal">10×10</span></label>
+          <input type="range" id="areaSlider" min="6" max="14" step="1" value="10">
+        </div>
+        <div class="field">
+          <label>จำนวน Sub-grids — <span class="val" id="blocksVal">3</span></label>
+          <input type="range" id="blocksSlider" min="2" max="5" step="1" value="3">
+        </div>
+        <div class="field">
+          <label>ขนาด block (min–max) — <span class="val" id="bszVal">2–4</span></label>
+          <input type="range" id="bszMin" min="2" max="4" step="1" value="2">
+          <input type="range" id="bszMax" min="2" max="5" step="1" value="4">
+        </div>
+      </div>
+
+      <div class="field" id="sizeField">
+        <label>Grid Size</label>
+        <div class="size-buttons" id="sizeBtns">
+          <button class="size-btn" data-size="3">3×3</button>
+          <button class="size-btn" data-size="4">4×4</button>
+          <button class="size-btn active" data-size="5">5×5</button>
+          <button class="size-btn" data-size="6">6×6</button>
+          <button class="size-btn" data-size="7">7×7</button>
+          <button class="size-btn" data-size="8">8×8</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Quality Factor (q) — <span class="val" id="qVal">1.0</span></label>
+        <input type="range" id="qSlider" min="0.1" max="5.0" step="0.1" value="1.0">
+        <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">
+          Target moves = q × 10 × N² × log(N+2)²
+        </div>
+      </div>
+
+      <div class="field" id="fillField">
+        <label>Fill % (เจาะรูจาก tail) — <span class="val" id="fillVal">100</span>%</label>
+        <input type="range" id="fillSlider" min="30" max="100" step="5" value="100">
+        <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">
+          100% = เต็ม grid | &lt;100% = ตัด tail ออกเป็นช่องดำ (holes)
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Seed (0 = random)</label>
+        <input type="number" id="seedInput" value="0" min="0"
+          style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #2d3148;
+                 background:#111420; color:#e0e0e0; font-size:0.9rem;">
+      </div>
+
+      <div class="field">
+        <label>Show animation</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="animCheck" checked
+            style="width:16px;height:16px;accent-color:#7dd3fc;">
+          <span style="font-size:0.85rem;color:#94a3b8;">Animate path drawing</span>
+        </label>
+      </div>
+
+      <button class="gen-btn" id="genBtn" onclick="runGenerate()">▶ Generate</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="panel">
+      <h2>📊 Statistics</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Grid Size</div>
+          <div class="value" id="statSize">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Path Length</div>
+          <div class="value" id="statPath">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Target Moves</div>
+          <div class="value" id="statTarget">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Actual Moves</div>
+          <div class="value" id="statActual">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Failed Moves</div>
+          <div class="value" id="statFail">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Fail Rate</div>
+          <div class="value" id="statFailRate">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Crossings*</div>
+          <div class="value" id="statDeadends">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Decision Points†</div>
+          <div class="value" id="statBranch">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Straightness</div>
+          <div class="value" id="statStraight">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Gen Time</div>
+          <div class="value" id="statTime">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Holes (เจาะ)</div>
+          <div class="value" id="statHoles">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Playable Cells</div>
+          <div class="value" id="statPlayable">—</div>
+        </div>
+      </div>
+      <div style="font-size:0.7rem;color:#64748b;margin-top:8px;">
+        *Crossings = คู่ nodes ที่อยู่ติดกันบน Grid แต่ไม่ต่อเนื่องกันใน path (ทำให้ solver สับสน)<br>
+        †Decision Points = nodes ที่มี grid-neighbor ≥3 ตัวอยู่ใน path (ต้องเลือกทิศทาง)
+      </div>
+
+      <div class="log-box" id="logBox">
+        <div class="line info">Ready. กด Generate เพื่อเริ่ม</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Visualizer -->
+  <div class="viz-panel">
+    <div class="viz-wrap">
+      <h2>🗺️ Grid Visualization</h2>
+      <canvas id="gridCanvas" width="480" height="480"></canvas>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div> Head (Start)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Tail (End)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Path</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Decision Point†</div>
+      </div>
+      <div class="path-toggle" onclick="togglePath()">▼ แสดง path array</div>
+      <div class="path-list" id="pathList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// Seeded RNG (Mulberry32) for reproducibility
+// ─────────────────────────────────────────────
+function makePRNG(seed) {
+  if (!seed) seed = Date.now() ^ (Math.random() * 0xFFFFFFFF | 0);
+  let s = seed >>> 0;
+  return function() {
+    s += 0x6D2B79F5;
+    let t = s;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+let rng = Math.random;
+let currentSize = 5;
+
+// ─────────────────────────────────────────────
+// Backbite Core
+// ─────────────────────────────────────────────
+function getGridNeighbors(node, size) {
+  const [r, c] = node;
+  const nb = [];
+  if (r - 1 >= 0)    nb.push([r-1, c]);
+  if (r + 1 < size)  nb.push([r+1, c]);
+  if (c - 1 >= 0)    nb.push([r, c-1]);
+  if (c + 1 < size)  nb.push([r, c+1]);
+  return nb;
+}
+
+function initZigzagPath(size) {
+  const path = [];
+  for (let row = 0; row < size; row++) {
+    if (row % 2 === 0) {
+      for (let col = 0; col < size; col++) path.push([row, col]);
+    } else {
+      for (let col = size - 1; col >= 0; col--) path.push([row, col]);
+    }
+  }
+  return path;
+}
+
+function backbiteMove(path, size, posMap) {
+  // สุ่ม endpoint
+  if (rng() < 0.5) {
+    // reverse path (ใช้ tail)
+    path.reverse();
+    // rebuild posMap
+    for (let i = 0; i < path.length; i++) posMap.set(path[i][0] * size + path[i][1], i);
+  }
+
+  const endpoint   = path[0];
+  const nextInPath = path[1];
+  const neighbors  = getGridNeighbors(endpoint, size);
+  const candidates = neighbors.filter(n => !(n[0] === nextInPath[0] && n[1] === nextInPath[1]));
+
+  if (candidates.length === 0) return false; // fail
+
+  const N = candidates[Math.floor(rng() * candidates.length)];
+  const k = posMap.get(N[0] * size + N[1]);
+
+  // REVERSE(path[0..k-1]) + path[k..end]
+  const front = path.slice(0, k).reverse();
+  const back  = path.slice(k);
+  const newPath = front.concat(back);
+
+  // update path in-place
+  for (let i = 0; i < newPath.length; i++) path[i] = newPath[i];
+
+  // rebuild posMap
+  for (let i = 0; i < path.length; i++) posMap.set(path[i][0] * size + path[i][1], i);
+
+  return true;
+}
+
+function generatePath(size, qualityFactor) {
+  const t0 = performance.now();
+
+  const path = initZigzagPath(size);
+  const posMap = new Map();
+  for (let i = 0; i < path.length; i++) posMap.set(path[i][0] * size + path[i][1], i);
+
+  const targetMoves = Math.floor(qualityFactor * 10.0 * size * size * Math.pow(Math.log(size + 2), 2));
+
+  let successCount = 0;
+  let totalAttempts = 0;
+  let failCount = 0;
+
+  // Phase 1: count successes
+  while (successCount < targetMoves) {
+    totalAttempts++;
+    const ok = backbiteMove(path, size, posMap);
+    if (ok) successCount++;
+    else failCount++;
+  }
+
+  // Phase 2: unbiased run
+  for (let i = 0; i < targetMoves; i++) {
+    totalAttempts++;
+    const ok = backbiteMove(path, size, posMap);
+    if (!ok) failCount++;
+  }
+
+  const elapsed = performance.now() - t0;
+  return { path, targetMoves, totalAttempts, failCount, elapsed };
+}
+
+// ─────────────────────────────────────────────
+// Rectangular Backbite (for chain sub-blocks, w × h)
+// ─────────────────────────────────────────────
+function neighborsRect(node, w, h) {
+  const [r, c] = node;
+  const nb = [];
+  if (r - 1 >= 0) nb.push([r-1, c]);
+  if (r + 1 < h)  nb.push([r+1, c]);
+  if (c - 1 >= 0) nb.push([r, c-1]);
+  if (c + 1 < w)  nb.push([r, c+1]);
+  return nb;
+}
+
+function initZigzagRect(w, h) {
+  const path = [];
+  for (let row = 0; row < h; row++) {
+    if (row % 2 === 0) for (let col = 0; col < w; col++) path.push([row, col]);
+    else               for (let col = w - 1; col >= 0; col--) path.push([row, col]);
+  }
+  return path;
+}
+
+function backbiteRect(path, w, h, posMap) {
+  if (rng() < 0.5) {
+    path.reverse();
+    for (let i = 0; i < path.length; i++) posMap.set(path[i][0] * w + path[i][1], i);
+  }
+  const endpoint = path[0], nextInPath = path[1];
+  const cands = neighborsRect(endpoint, w, h)
+    .filter(n => !(n[0] === nextInPath[0] && n[1] === nextInPath[1]));
+  if (cands.length === 0) return false;
+  const N = cands[Math.floor(rng() * cands.length)];
+  const k = posMap.get(N[0] * w + N[1]);
+  const front = path.slice(0, k).reverse();
+  const back = path.slice(k);
+  const np = front.concat(back);
+  for (let i = 0; i < np.length; i++) path[i] = np[i];
+  for (let i = 0; i < path.length; i++) posMap.set(path[i][0] * w + path[i][1], i);
+  return true;
+}
+
+function genBlockPath(w, h, q) {
+  const path = initZigzagRect(w, h);
+  const posMap = new Map();
+  for (let i = 0; i < path.length; i++) posMap.set(path[i][0] * w + path[i][1], i);
+  const n = Math.max(w, h);
+  const target = Math.floor(q * 10 * w * h * Math.pow(Math.log(n + 2), 2));
+  let s = 0;
+  while (s < target) { if (backbiteRect(path, w, h, posMap)) s++; }
+  for (let i = 0; i < target; i++) backbiteRect(path, w, h, posMap);
+  return path; // local coords [r,c]
+}
+
+// ─────────────────────────────────────────────
+// Chain Generation — combine K blocks into ONE stroke
+// ─────────────────────────────────────────────
+function generateChain(numBlocks, minSz, maxSz, q, gw, gh) {
+  const t0 = performance.now();
+  const occupied = new Set();          // global keys r*gw+c
+  let combined = [];                   // global [r,c]
+  const segments = [];                 // {start,end} index ranges per block
+  const bridges = [];                  // global keys that are bridge connections
+  const DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
+  function rndInt(a, b) { return a + Math.floor(rng() * (b - a + 1)); }
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rng()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    return arr;
+  }
+  // 8 symmetries (rotations + reflections) of a local path, normalized to ≥0 coords
+  function symmetries(p) {
+    const norm = pts => { let mr=Infinity,mc=Infinity; pts.forEach(([r,c])=>{mr=Math.min(mr,r);mc=Math.min(mc,c);}); return pts.map(([r,c])=>[r-mr,c-mc]); };
+    const out = [];
+    let cur = p.map(([r,c])=>[r,c]);
+    for (let rot = 0; rot < 4; rot++) {
+      out.push(norm(cur));                          // rotation
+      out.push(norm(cur.map(([r,c])=>[r,-c])));     // + horizontal flip
+      cur = cur.map(([r,c]) => [c, -r]);            // rotate 90°
+    }
+    // also offer each with reversed traversal (swaps head/tail endpoint)
+    return out.concat(out.map(o => o.slice().reverse()));
+  }
+
+  // Place first block somewhere near center-ish
+  function placeFirst() {
+    for (let tries = 0; tries < 200; tries++) {
+      const w = rndInt(minSz, maxSz), h = rndInt(minSz, maxSz);
+      const local = genBlockPath(w, h, q);
+      const ox = rndInt(0, gw - w), oy = rndInt(0, gh - h);
+      const glob = local.map(([r,c]) => [r + oy, c + ox]);
+      if (glob.every(([r,c]) => !occupied.has(r*gw+c))) {
+        glob.forEach(([r,c]) => occupied.add(r*gw+c));
+        segments.push({ start: 0, end: glob.length - 1 });
+        combined = glob;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (!placeFirst()) return null;
+
+  // Append subsequent blocks chained to current tail
+  for (let b = 1; b < numBlocks; b++) {
+    const tail = combined[combined.length - 1];
+    let placed = false;
+
+    for (let attempt = 0; attempt < 60 && !placed; attempt++) {
+      const w = rndInt(minSz, maxSz), h = rndInt(minSz, maxSz);
+      const local = genBlockPath(w, h, q);   // head=local[0]
+      // try all 8 symmetries × reversed traversal for maximum connectability
+      const orientations = shuffle(symmetries(local));
+
+      for (const lpath of orientations) {
+        const headLocal = lpath[0];
+        for (const [dr, dc] of shuffle(DIRS.slice())) {
+          const C = [tail[0] + dr, tail[1] + dc];      // where head must land
+          if (C[0] < 0 || C[1] < 0 || C[0] >= gh || C[1] >= gw) continue;
+          if (occupied.has(C[0]*gw + C[1])) continue;
+          // translate so headLocal → C
+          const off = [C[0] - headLocal[0], C[1] - headLocal[1]];
+          const glob = lpath.map(([r,c]) => [r + off[0], c + off[1]]);
+          const ok = glob.every(([r,c]) =>
+            r >= 0 && c >= 0 && r < gh && c < gw && !occupied.has(r*gw+c));
+          if (!ok) continue;
+          // accept
+          glob.forEach(([r,c]) => occupied.add(r*gw+c));
+          bridges.push(C[0]*gw + C[1]);
+          const startIdx = combined.length;
+          combined = combined.concat(glob);
+          segments.push({ start: startIdx, end: combined.length - 1 });
+          placed = true;
+          break;
+        }
+        if (placed) break;
+      }
+    }
+    if (!placed) {
+      return { combined, segments, bridges, gw, gh, occupied,
+               elapsed: performance.now() - t0, placedBlocks: b, requested: numBlocks };
+    }
+  }
+
+  return { combined, segments, bridges, gw, gh, occupied,
+           elapsed: performance.now() - t0, placedBlocks: numBlocks, requested: numBlocks };
+}
+
+// ─────────────────────────────────────────────
+// MST-Guided Generation
+//   coarse grid → partial spanning tree (Randomized Prim's) → wall-following
+//   → Hamiltonian path on fine grid (cycle broken into open path)
+// ─────────────────────────────────────────────
+function getCoarseNeighbors([r,c], cw, ch) {
+  const nb = [];
+  if (r - 1 >= 0) nb.push([r-1, c]);
+  if (r + 1 < ch) nb.push([r+1, c]);
+  if (c - 1 >= 0) nb.push([r, c-1]);
+  if (c + 1 < cw) nb.push([r, c+1]);
+  return nb;
+}
+
+// NOTE: wall-following (below) only handles degree ≤ 2 coarse nodes correctly
+// (chains/turns). A general spanning tree can branch (degree ≥3), which needs
+// a per-node "port routing" table we have not implemented — confirmed by testing
+// (branching case failed: produced 4 cells instead of expected 20).
+// So at the coarse level we build a SIMPLE PATH (self-avoiding walk, degree ≤2
+// everywhere) instead of a general spanning tree. This still gives: scattered
+// holes, guaranteed coverage of the path's own cells, and correct doubling.
+function buildPartialSpanningTree(cw, ch, coveragePct) {
+  const total = cw * ch;
+  const target = Math.max(1, Math.round(total * coveragePct / 100));
+  let best = null;
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const start = [Math.floor(rng()*ch), Math.floor(rng()*cw)];
+    const seq = [start];
+    const seen = new Set([start[0]*cw + start[1]]);
+    let current = start;
+    while (seq.length < target) {
+      const nbs = getCoarseNeighbors(current, cw, ch).filter(([r,c]) => !seen.has(r*cw+c));
+      if (!nbs.length) break; // self-avoiding walk stuck — stop here
+      const next = nbs[Math.floor(rng() * nbs.length)];
+      seen.add(next[0]*cw + next[1]);
+      seq.push(next);
+      current = next;
+    }
+    if (!best || seq.length > best.length) best = seq;
+    if (best.length >= target) break;
+  }
+
+  const visited = new Set();
+  const adj = new Map();
+  function link(a, b) {
+    if (!adj.has(a)) adj.set(a, new Set());
+    if (!adj.has(b)) adj.set(b, new Set());
+    adj.get(a).add(b); adj.get(b).add(a);
+  }
+  for (let i = 0; i < best.length; i++) {
+    const key = best[i][0]*cw + best[i][1];
+    visited.add(key);
+    if (i > 0) link(best[i-1][0]*cw + best[i-1][1], key);
+  }
+
+  return { visited, adj, cw, ch, start: best[0][0]*cw + best[0][1] };
+}
+
+const DIRS4 = [[-1,0],[0,1],[1,0],[0,-1]]; // N, E, S, W
+
+function wallFollow(tree) {
+  const { visited, adj, cw, ch } = tree;
+  const fw = cw * 2, fh = ch * 2;
+  const coarseOf = (r,c) => [Math.floor(r/2), Math.floor(c/2)];
+  const coarseKey = (cr,cc) => cr*cw + cc;
+
+  function canMove(r, c, d) {
+    const nr = r + DIRS4[d][0], nc = c + DIRS4[d][1];
+    if (nr < 0 || nc < 0 || nr >= fh || nc >= fw) return null;
+    const [cr1, cc1] = coarseOf(r, c), [cr2, cc2] = coarseOf(nr, nc);
+    const k1 = coarseKey(cr1, cc1), k2 = coarseKey(cr2, cc2);
+    if (k1 === k2) return [nr, nc];           // inside same coarse block: always open
+    if (!visited.has(k2)) return null;        // target coarse cell excluded = wall
+    const treeAdj = adj.get(k1);
+    if (treeAdj && treeAdj.has(k2)) return [nr, nc]; // tree edge = open
+    return null;                              // no tree edge = wall
+  }
+
+  const scr = Math.floor(tree.start / cw), scc = tree.start % cw;
+  let r = scr * 2, c = scc * 2;
+
+  let d = -1;
+  for (const cand of [1, 2, 3, 0]) { if (canMove(r, c, cand)) { d = cand; break; } }
+  if (d === -1) return [[r, c]]; // isolated single coarse cell
+
+  const path = [[r, c]];
+  const startKey = r * fw + c;
+  let guard = fw * fh * 4 + 10;
+
+  while (guard-- > 0) {
+    const order = [(d+1)%4, d, (d+3)%4, (d+2)%4]; // right-hand rule
+    let moved = null, usedDir = -1;
+    for (const cand of order) {
+      const m = canMove(r, c, cand);
+      if (m) { moved = m; usedDir = cand; break; }
+    }
+    if (!moved) break;
+    r = moved[0]; c = moved[1]; d = usedDir;
+    if (r * fw + c === startKey) break; // closed the cycle
+    path.push([r, c]);
+  }
+  return path; // open Hamiltonian path (cycle broken at the start seam)
+}
+
+// ─────────────────────────────────────────────
+// Path Analysis
+// ─────────────────────────────────────────────
+function analyzePath(path, size) {
+  // Build index: key → path index
+  const pathIdx = new Map();
+  for (let i = 0; i < path.length; i++) pathIdx.set(path[i][0] * size + path[i][1], i);
+
+  let crossings = 0;       // pairs of grid-adjacent but non-path-consecutive nodes
+  let decisionPoints = 0;  // nodes with ≥3 grid-neighbors that are also in path
+  let straightCount = 0;
+
+  for (let i = 0; i < path.length; i++) {
+    const [r, c] = path[i];
+    const nbs = getGridNeighbors([r,c], size);
+
+    // Count grid-neighbors that are in path but not consecutive to i
+    let pathNbCount = 0;
+    for (const [nr, nc] of nbs) {
+      const j = pathIdx.get(nr * size + nc);
+      if (j === undefined) continue;
+      pathNbCount++;
+      // Count crossing pairs only once (i < j)
+      if (j > i && Math.abs(i - j) > 1) crossings++;
+    }
+    if (pathNbCount >= 3) decisionPoints++;
+
+    // Straightness: 3 consecutive nodes in same row or col
+    if (i > 0 && i < path.length - 1) {
+      const [pr, pc] = path[i-1];
+      const [nr, nc] = path[i+1];
+      if ((r === pr && r === nr) || (c === pc && c === nc)) straightCount++;
+    }
+  }
+
+  const straightness = path.length > 2 ? straightCount / (path.length - 2) : 0;
+  return { crossings, decisionPoints, straightness };
+}
+
+// ─────────────────────────────────────────────
+// Drawing
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('gridCanvas');
+const ctx = canvas.getContext('2d');
+
+function hslToHex(h, s, l) {
+  l /= 100; s /= 100;
+  const a = s * Math.min(l, 1-l);
+  const f = n => { const k = (n+h/30)%12; const c = l-a*Math.max(-1,Math.min(k-3,9-k,1)); return Math.round(255*c).toString(16).padStart(2,'0'); };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function drawGrid(path, size, deadEndSet, holeSet) {
+  holeSet = holeSet || new Set();
+  const CANVAS = 480;
+  const MARGIN = 20;
+  const CELL = (CANVAS - MARGIN * 2) / size;
+  const RADIUS = Math.min(CELL * 0.38, 18);
+
+  ctx.clearRect(0, 0, CANVAS, CANVAS);
+
+  // Fill playable cells (subtle) and holes (dark)
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      const x = MARGIN + c * CELL;
+      const y = MARGIN + r * CELL;
+      if (holeSet.has(r * size + c)) {
+        ctx.fillStyle = '#0a0c12'; // hole = darker than bg
+      } else {
+        ctx.fillStyle = '#161a28'; // playable
+      }
+      ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+    }
+  }
+
+  // Background grid
+  ctx.strokeStyle = '#2d3148';
+  ctx.lineWidth = 1;
+  for (let r = 0; r <= size; r++) {
+    const y = MARGIN + r * CELL;
+    ctx.beginPath(); ctx.moveTo(MARGIN, y); ctx.lineTo(MARGIN + size * CELL, y); ctx.stroke();
+  }
+  for (let c = 0; c <= size; c++) {
+    const x = MARGIN + c * CELL;
+    ctx.beginPath(); ctx.moveTo(x, MARGIN); ctx.lineTo(x, MARGIN + size * CELL); ctx.stroke();
+  }
+
+  // Draw path lines
+  ctx.lineWidth = CELL * 0.18;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < path.length; i++) {
+    const [r, c] = path[i];
+    const x = MARGIN + c * CELL + CELL / 2;
+    const y = MARGIN + r * CELL + CELL / 2;
+    // color gradient along path
+    const t = i / (path.length - 1);
+    const hue = 200 + t * 60; // blue → purple
+    ctx.strokeStyle = hslToHex(hue, 70, 55);
+    if (i === 0) ctx.beginPath();
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Redraw segment by segment with gradient
+  for (let i = 0; i < path.length - 1; i++) {
+    const [r1, c1] = path[i];
+    const [r2, c2] = path[i+1];
+    const x1 = MARGIN + c1 * CELL + CELL / 2;
+    const y1 = MARGIN + r1 * CELL + CELL / 2;
+    const x2 = MARGIN + c2 * CELL + CELL / 2;
+    const y2 = MARGIN + r2 * CELL + CELL / 2;
+    const t = i / (path.length - 2);
+    const hue = 210 + t * 50;
+    ctx.beginPath();
+    ctx.strokeStyle = hslToHex(hue, 65, 52);
+    ctx.lineWidth = CELL * 0.16;
+    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  // Step numbers (if grid is small enough)
+  const showNumbers = size <= 7;
+
+  // Draw nodes
+  for (let i = 0; i < path.length; i++) {
+    const [r, c] = path[i];
+    const x = MARGIN + c * CELL + CELL / 2;
+    const y = MARGIN + r * CELL + CELL / 2;
+    const key = r * size + c;
+
+    let color = '#3b82f6';
+    if (i === 0) color = '#4ade80';
+    else if (i === path.length - 1) color = '#f87171';
+    else if (deadEndSet.has(key)) color = '#f59e0b';
+
+    ctx.beginPath();
+    ctx.arc(x, y, RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#1e2130';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (showNumbers) {
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${Math.max(10, CELL * 0.26)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(i + 1, x, y);
+    }
+  }
+
+  // Labels for head/tail
+  const [hr, hc] = path[0];
+  const [tr, tc] = path[path.length-1];
+  ctx.font = `bold ${Math.max(9, CELL * 0.22)}px sans-serif`;
+  ctx.fillStyle = '#4ade80';
+  ctx.textAlign = 'center';
+  ctx.fillText('HEAD', MARGIN + hc * CELL + CELL/2, MARGIN + hr * CELL + CELL/2 - RADIUS - 4);
+  ctx.fillStyle = '#f87171';
+  ctx.fillText('TAIL', MARGIN + tc * CELL + CELL/2, MARGIN + tr * CELL + CELL/2 + RADIUS + 12);
+}
+
+function drawEmpty(size) {
+  const CANVAS = 480;
+  const MARGIN = 20;
+  const CELL = (CANVAS - MARGIN * 2) / size;
+  ctx.clearRect(0, 0, CANVAS, CANVAS);
+  ctx.strokeStyle = '#2d3148';
+  ctx.lineWidth = 1;
+  for (let r = 0; r <= size; r++) {
+    const y = MARGIN + r * CELL;
+    ctx.beginPath(); ctx.moveTo(MARGIN, y); ctx.lineTo(MARGIN + size * CELL, y); ctx.stroke();
+  }
+  for (let c = 0; c <= size; c++) {
+    const x = MARGIN + c * CELL;
+    ctx.beginPath(); ctx.moveTo(x, MARGIN); ctx.lineTo(x, MARGIN + size * CELL); ctx.stroke();
+  }
+  ctx.fillStyle = '#2d3148';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('กด Generate เพื่อเริ่ม', 240, 245);
+}
+
+// ─────────────────────────────────────────────
+// Chain draw — rectangular global grid, colored per segment
+// ─────────────────────────────────────────────
+const SEG_COLORS = ['#3b82f6','#a855f7','#ec4899','#f59e0b','#14b8a6','#84cc16'];
+
+function drawChain(res, upto) {
+  const { combined, segments, bridges, gw, gh, occupied } = res;
+  const n = (upto === undefined) ? combined.length : upto;
+  const CANVAS = 480, MARGIN = 20;
+  const CELL = (CANVAS - MARGIN * 2) / Math.max(gw, gh);
+  const RADIUS = Math.min(CELL * 0.34, 16);
+  const bridgeSet = new Set(bridges);
+
+  ctx.clearRect(0, 0, CANVAS, CANVAS);
+
+  // playable cell backgrounds
+  for (const key of occupied) {
+    const r = Math.floor(key / gw), c = key % gw;
+    ctx.fillStyle = '#161a28';
+    ctx.fillRect(MARGIN + c*CELL + 1, MARGIN + r*CELL + 1, CELL - 2, CELL - 2);
+  }
+  // grid lines
+  ctx.strokeStyle = '#2d3148'; ctx.lineWidth = 1;
+  for (let r = 0; r <= gh; r++) { const y = MARGIN + r*CELL; ctx.beginPath(); ctx.moveTo(MARGIN, y); ctx.lineTo(MARGIN + gw*CELL, y); ctx.stroke(); }
+  for (let c = 0; c <= gw; c++) { const x = MARGIN + c*CELL; ctx.beginPath(); ctx.moveTo(x, MARGIN); ctx.lineTo(x, MARGIN + gh*CELL); ctx.stroke(); }
+
+  function segOf(i) { for (let s = 0; s < segments.length; s++) if (i >= segments[s].start && i <= segments[s].end) return s; return 0; }
+
+  // path segments
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (let i = 0; i < n - 1; i++) {
+    const [r1,c1] = combined[i], [r2,c2] = combined[i+1];
+    const x1 = MARGIN + c1*CELL + CELL/2, y1 = MARGIN + r1*CELL + CELL/2;
+    const x2 = MARGIN + c2*CELL + CELL/2, y2 = MARGIN + r2*CELL + CELL/2;
+    const isBridge = bridgeSet.has(combined[i+1][0]*gw + combined[i+1][1]) && segOf(i) !== segOf(i+1);
+    ctx.beginPath();
+    ctx.strokeStyle = isBridge ? '#ffffff' : SEG_COLORS[segOf(i) % SEG_COLORS.length];
+    ctx.lineWidth = isBridge ? CELL * 0.10 : CELL * 0.15;
+    if (isBridge) ctx.setLineDash([CELL*0.12, CELL*0.10]); else ctx.setLineDash([]);
+    ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // nodes
+  const showNum = gw * gh <= 64;
+  for (let i = 0; i < n; i++) {
+    const [r,c] = combined[i];
+    const x = MARGIN + c*CELL + CELL/2, y = MARGIN + r*CELL + CELL/2;
+    const key = r*gw + c;
+    let color = SEG_COLORS[segOf(i) % SEG_COLORS.length];
+    if (i === 0) color = '#4ade80';
+    else if (i === combined.length - 1) color = '#f87171';
+    else if (bridgeSet.has(key)) color = '#ffffff';
+    ctx.beginPath(); ctx.arc(x, y, RADIUS, 0, Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = '#1e2130'; ctx.lineWidth = 2; ctx.stroke();
+    if (showNum) {
+      ctx.fillStyle = (bridgeSet.has(key) && i!==0 && i!==combined.length-1) ? '#000' : '#fff';
+      ctx.font = `bold ${Math.max(8, CELL*0.24)}px monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(i+1, x, y);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// Animated draw
+// ─────────────────────────────────────────────
+function drawAnimated(path, size, deadEndSet, holeSet) {
+  let i = 0;
+  const delay = Math.max(10, Math.min(120, 1000 / path.length));
+
+  function step() {
+    if (i >= path.length) { drawGrid(path, size, deadEndSet, holeSet); return; }
+    drawGrid(path.slice(0, i+1), size, deadEndSet, holeSet);
+    i++;
+    setTimeout(step, delay);
+  }
+  step();
+}
+
+// ─────────────────────────────────────────────
+// UI
+// ─────────────────────────────────────────────
+document.getElementById('qSlider').addEventListener('input', function() {
+  document.getElementById('qVal').textContent = parseFloat(this.value).toFixed(1);
+});
+
+document.getElementById('fillSlider').addEventListener('input', function() {
+  document.getElementById('fillVal').textContent = this.value;
+});
+
+let currentMode = 'single';
+document.getElementById('modeBtns').addEventListener('click', function(e) {
+  if (!e.target.dataset.mode) return;
+  this.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentMode = e.target.dataset.mode;
+  const chain = currentMode === 'chain';
+  const mst = currentMode === 'mst';
+  document.getElementById('chainControls').style.display = chain ? 'block' : 'none';
+  document.getElementById('mstControls').style.display = mst ? 'block' : 'none';
+  document.getElementById('sizeField').style.display = (chain || mst) ? 'none' : 'block';
+  document.getElementById('fillField').style.display = (chain || mst) ? 'none' : 'block';
+  if (chain) drawEmpty(parseInt(document.getElementById('areaSlider').value));
+  else if (mst) drawEmpty(parseInt(document.getElementById('mstSizeSlider').value));
+  else drawEmpty(currentSize);
+});
+
+document.getElementById('mstSizeSlider').addEventListener('input', function() {
+  document.getElementById('mstSizeVal').textContent = this.value + '×' + this.value;
+  if (currentMode === 'mst') drawEmpty(parseInt(this.value));
+});
+document.getElementById('mstCovSlider').addEventListener('input', function() {
+  document.getElementById('mstCovVal').textContent = this.value;
+});
+
+// chain sliders
+document.getElementById('areaSlider').addEventListener('input', function() {
+  document.getElementById('areaVal').textContent = this.value + '×' + this.value;
+});
+document.getElementById('blocksSlider').addEventListener('input', function() {
+  document.getElementById('blocksVal').textContent = this.value;
+});
+function updateBsz() {
+  let mn = parseInt(document.getElementById('bszMin').value);
+  let mx = parseInt(document.getElementById('bszMax').value);
+  if (mn > mx) { mx = mn; document.getElementById('bszMax').value = mx; }
+  document.getElementById('bszVal').textContent = mn + '–' + mx;
+}
+document.getElementById('bszMin').addEventListener('input', updateBsz);
+document.getElementById('bszMax').addEventListener('input', updateBsz);
+
+document.getElementById('sizeBtns').addEventListener('click', function(e) {
+  if (!e.target.classList.contains('size-btn')) return;
+  this.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentSize = parseInt(e.target.dataset.size);
+  drawEmpty(currentSize);
+});
+
+function log(msg, cls='') {
+  const box = document.getElementById('logBox');
+  const div = document.createElement('div');
+  div.className = 'line ' + cls;
+  div.textContent = msg;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('logBox').innerHTML = '';
+}
+
+function setStats(data, size, analysis) {
+  const failRate = (data.failCount / data.totalAttempts * 100).toFixed(1);
+  document.getElementById('statSize').textContent = `${size}×${size}`;
+  document.getElementById('statPath').textContent = data.path.length;
+  document.getElementById('statTarget').textContent = data.targetMoves.toLocaleString();
+  document.getElementById('statActual').textContent = data.totalAttempts.toLocaleString();
+  document.getElementById('statFail').textContent = data.failCount.toLocaleString();
+  document.getElementById('statTime').textContent = data.elapsed.toFixed(1) + ' ms';
+
+  const frEl = document.getElementById('statFailRate');
+  frEl.textContent = failRate + '%';
+  frEl.className = 'value ' + (parseFloat(failRate) < 20 ? 'good' : parseFloat(failRate) < 40 ? 'warn' : 'bad');
+
+  const deEl = document.getElementById('statDeadends');
+  deEl.textContent = analysis.crossings;
+  deEl.className = 'value ' + (analysis.crossings === 0 ? 'good' : analysis.crossings < 5 ? 'warn' : 'bad');
+
+  const dpEl = document.getElementById('statBranch');
+  dpEl.textContent = analysis.decisionPoints;
+  dpEl.className = 'value ' + (analysis.decisionPoints < 3 ? 'good' : analysis.decisionPoints < 6 ? 'warn' : 'bad');
+  document.getElementById('statStraight').textContent = (analysis.straightness * 100).toFixed(1) + '%';
+}
+
+function togglePath() {
+  const el = document.getElementById('pathList');
+  const shown = el.style.display === 'block';
+  el.style.display = shown ? 'none' : 'block';
+  document.querySelector('.path-toggle').textContent = shown ? '▼ แสดง path array' : '▲ ซ่อน path array';
+}
+
+function runGenerate() {
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  clearLog();
+  log('▶ เริ่ม generate...', 'info');
+
+  const size = currentSize;
+  const q = parseFloat(document.getElementById('qSlider').value);
+  const fillPct = parseInt(document.getElementById('fillSlider').value);
+  const seed = parseInt(document.getElementById('seedInput').value) || 0;
+  const animate = document.getElementById('animCheck').checked;
+
+  rng = makePRNG(seed || null);
+  if (seed) log(`🔑 Seed: ${seed}`, 'info');
+
+  if (currentMode === 'chain') { setTimeout(runChain, 10); return; }
+  if (currentMode === 'mst') { setTimeout(runMST, 10); return; }
+
+  setTimeout(() => {
+    const data = generatePath(size, q);
+    const { targetMoves, totalAttempts, failCount, elapsed } = data;
+    const fullPath = data.path;
+
+    // --- Tail-cutting: keep only fillPct% of the path, rest become holes ---
+    const totalCells = size * size;
+    const keepCount = Math.max(2, Math.round(totalCells * fillPct / 100));
+    const path = fullPath.slice(0, keepCount);       // playable path (head kept, tail cut)
+    const cutCells = fullPath.slice(keepCount);      // → holes
+    const holeSet = new Set(cutCells.map(([r,c]) => r * size + c));
+    const holeCount = cutCells.length;
+
+    const analysis = analyzePath(path, size);
+
+    // Highlight decision points on canvas (only among playable cells)
+    const pathIdx2 = new Map();
+    for (let i = 0; i < path.length; i++) pathIdx2.set(path[i][0] * size + path[i][1], i);
+    const deadEndSet = new Set();
+    for (let i = 1; i < path.length - 1; i++) {
+      const [r, c] = path[i];
+      const nbs = getGridNeighbors([r,c], size);
+      const pathNbCount = nbs.filter(([nr,nc]) => pathIdx2.has(nr*size+nc)).length;
+      if (pathNbCount >= 3) deadEndSet.add(r * size + c);
+    }
+
+    setStats(data, size, analysis);
+    document.getElementById('statHoles').textContent = holeCount;
+    document.getElementById('statPlayable').textContent = path.length;
+    document.getElementById('statPath').textContent = path.length;
+
+    log(`✅ Grid: ${size}×${size} | Fill: ${fillPct}%`, 'ok');
+    log(`🧩 Playable cells: ${path.length} | Holes: ${holeCount}`, 'info');
+    log(`📐 Target moves: ${targetMoves.toLocaleString()} | ${elapsed.toFixed(1)}ms`, 'info');
+    log(`🔀 Crossings: ${analysis.crossings}`, analysis.crossings > 5 ? 'warn' : 'ok');
+    log(`🔶 Decision points: ${analysis.decisionPoints}`, analysis.decisionPoints > 5 ? 'warn' : 'ok');
+    log(`↔️  Straightness: ${(analysis.straightness*100).toFixed(1)}%`, 'info');
+
+    // Validate: playable path covers exactly the non-hole cells, no dup
+    const unique = new Set(path.map(([r,c]) => `${r},${c}`));
+    if (unique.size !== path.length) {
+      log(`⚠️ WARNING: มี node ซ้ำ! ${path.length - unique.size} ตัว`, 'warn');
+    } else {
+      log('✅ Valid: path ผ่านทุก playable cell ครบ ไม่ซ้ำ', 'ok');
+    }
+    if (path.length + holeCount === totalCells) {
+      log('✅ Cells สมดุล: playable + holes = grid', 'ok');
+    }
+
+    // Path array display
+    document.getElementById('pathList').textContent = JSON.stringify(path);
+
+    if (animate && size <= 7) {
+      drawAnimated(path, size, deadEndSet, holeSet);
+    } else {
+      drawGrid(path, size, deadEndSet, holeSet);
+    }
+
+    btn.disabled = false;
+    btn.textContent = '▶ Generate';
+  }, 10);
+}
+
+function runChain() {
+  const btn = document.getElementById('genBtn');
+  const q = parseFloat(document.getElementById('qSlider').value);
+  const area = parseInt(document.getElementById('areaSlider').value);
+  const numBlocks = parseInt(document.getElementById('blocksSlider').value);
+  let mn = parseInt(document.getElementById('bszMin').value);
+  let mx = parseInt(document.getElementById('bszMax').value);
+  if (mn > mx) [mn, mx] = [mx, mn];
+
+  // retry whole chain, keep the layout that places the most blocks
+  let res = null;
+  for (let t = 0; t < 40; t++) {
+    const cand = generateChain(numBlocks, mn, mx, q, area, area);
+    if (cand && (!res || cand.placedBlocks > res.placedBlocks)) res = cand;
+    if (res && res.placedBlocks === numBlocks) break;
+  }
+  if (!res) { log('❌ วางบล็อกแรกไม่สำเร็จ ลองลดขนาด block หรือเพิ่ม area', 'warn'); btn.disabled=false; btn.textContent='▶ Generate'; return; }
+
+  const { combined, segments, bridges, gw, gh, elapsed, placedBlocks, requested } = res;
+
+  // Validate one-stroke continuity + no duplicate
+  let contiguous = true;
+  for (let i = 0; i < combined.length - 1; i++) {
+    const [r1,c1] = combined[i], [r2,c2] = combined[i+1];
+    if (Math.abs(r1-r2) + Math.abs(c1-c2) !== 1) { contiguous = false; break; }
+  }
+  const uniq = new Set(combined.map(([r,c]) => r*gw+c));
+  const noDup = uniq.size === combined.length;
+
+  // Stats
+  const analysis = analyzePathChain(combined, gw);
+  document.getElementById('statSize').textContent = `${gw}×${gh}`;
+  document.getElementById('statPath').textContent = combined.length;
+  document.getElementById('statTarget').textContent = `${placedBlocks}/${requested} blk`;
+  document.getElementById('statActual').textContent = bridges.length + ' bridges';
+  document.getElementById('statFail').textContent = '—';
+  document.getElementById('statFailRate').textContent = '—';
+  document.getElementById('statFailRate').className = 'value';
+  document.getElementById('statDeadends').textContent = analysis.crossings;
+  document.getElementById('statBranch').textContent = analysis.decisionPoints;
+  document.getElementById('statStraight').textContent = (analysis.straightness*100).toFixed(1) + '%';
+  document.getElementById('statTime').textContent = elapsed.toFixed(1) + ' ms';
+  document.getElementById('statHoles').textContent = (gw*gh - combined.length);
+  document.getElementById('statPlayable').textContent = combined.length;
+
+  log(`✅ Chain: ${placedBlocks}/${requested} blocks | area ${gw}×${gh}`, placedBlocks===requested?'ok':'warn');
+  log(`🔗 Total stroke: ${combined.length} cells | ${bridges.length} bridges`, 'info');
+  log(`🔀 Crossings: ${analysis.crossings} | 🔶 Decisions: ${analysis.decisionPoints}`, 'info');
+  log(`⚡ ${elapsed.toFixed(1)}ms`, 'info');
+  log(contiguous ? '✅ One-stroke: เส้นต่อเนื่องทุกช่วง' : '⚠️ เส้นขาด! (bug)', contiguous?'ok':'warn');
+  log(noDup ? '✅ No duplicate: ไม่มีช่องซ้ำ' : '⚠️ มีช่องซ้ำ!', noDup?'ok':'warn');
+  if (placedBlocks < requested) log(`ℹ️ วางได้ ${placedBlocks} บล็อก (พื้นที่ไม่พอต่อ) — ลองเพิ่ม area`, 'warn');
+
+  document.getElementById('pathList').textContent = JSON.stringify(combined);
+
+  const animate = document.getElementById('animCheck').checked;
+  if (animate && combined.length <= 60) {
+    let i = 1;
+    const delay = Math.max(12, Math.min(90, 1500 / combined.length));
+    (function step(){ if (i > combined.length) { drawChain(res); return; } drawChain(res, i); i++; setTimeout(step, delay); })();
+  } else {
+    drawChain(res);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Generate';
+}
+
+// analysis for chain (uses width-based key)
+function analyzePathChain(path, gw) {
+  const idx = new Map();
+  for (let i = 0; i < path.length; i++) idx.set(path[i][0]*gw + path[i][1], i);
+  let crossings = 0, decisionPoints = 0, straightCount = 0;
+  for (let i = 0; i < path.length; i++) {
+    const [r,c] = path[i];
+    const nbs = [[r-1,c],[r+1,c],[r,c-1],[r,c+1]];
+    let pn = 0;
+    for (const [nr,nc] of nbs) {
+      const j = idx.get(nr*gw + nc);
+      if (j === undefined) continue;
+      pn++;
+      if (j > i && Math.abs(i-j) > 1) crossings++;
+    }
+    if (pn >= 3) decisionPoints++;
+    if (i > 0 && i < path.length-1) {
+      const [pr,pc] = path[i-1], [nr,nc] = path[i+1];
+      if ((r===pr && r===nr) || (c===pc && c===nc)) straightCount++;
+    }
+  }
+  return { crossings, decisionPoints, straightness: path.length>2 ? straightCount/(path.length-2) : 0 };
+}
+
+function runMST() {
+  const btn = document.getElementById('genBtn');
+  const fineSize = parseInt(document.getElementById('mstSizeSlider').value);
+  const coveragePct = parseInt(document.getElementById('mstCovSlider').value);
+  const coarse = fineSize / 2;
+
+  // NOTE: our wall-following only routes correctly when the coarse path does
+  // not pass within 1 cell of itself in a way that opens 2 parallel doors
+  // between the same pair of coarse cells (needs a per-cell port table we
+  // have not built). Retry until we get a config where path covers 100% of
+  // the intended coarse cells — same approach used for Chain mode retries.
+  let tree, path, retries = 0;
+  const MAX_RETRY = 30;
+  for (; retries < MAX_RETRY; retries++) {
+    tree = buildPartialSpanningTree(coarse, coarse, coveragePct);
+    path = wallFollow(tree);
+    if (path.length === tree.visited.size * 4) break;
+  }
+
+  const fw = fineSize, fh = fineSize;
+  const totalFine = fw * fh;
+  const expectedCovered = tree.visited.size * 4;
+  const analysis = analyzePathChain(path, fw);
+
+  const holeSet = new Set();
+  for (let r = 0; r < fh; r++) {
+    for (let c = 0; c < fw; c++) {
+      const cr = Math.floor(r/2), cc = Math.floor(c/2);
+      if (!tree.visited.has(cr*coarse + cc)) holeSet.add(r*fw + c);
+    }
+  }
+
+  const uniq = new Set(path.map(([r,c]) => r*fw + c));
+  const noDup = uniq.size === path.length;
+  let isClosedNeighbor = false;
+  if (path.length > 1) {
+    const [r1,c1] = path[0], [r2,c2] = path[path.length-1];
+    isClosedNeighbor = Math.abs(r1-r2) + Math.abs(c1-c2) === 1;
+  }
+
+  document.getElementById('statSize').textContent = `${fw}×${fh}`;
+  document.getElementById('statPath').textContent = path.length;
+  document.getElementById('statTarget').textContent = `${tree.visited.size}/${coarse*coarse} coarse`;
+  document.getElementById('statActual').textContent = expectedCovered + ' expected';
+  document.getElementById('statFail').textContent = retries + ' retries';
+  const matchOk = path.length === expectedCovered;
+  const frEl = document.getElementById('statFailRate');
+  frEl.textContent = matchOk ? 'Match ✓' : 'Mismatch';
+  frEl.className = 'value ' + (matchOk ? 'good' : 'bad');
+  document.getElementById('statDeadends').textContent = analysis.crossings;
+  document.getElementById('statBranch').textContent = analysis.decisionPoints;
+  document.getElementById('statStraight').textContent = (analysis.straightness*100).toFixed(1) + '%';
+  document.getElementById('statTime').textContent = '—';
+  document.getElementById('statHoles').textContent = totalFine - path.length;
+  document.getElementById('statPlayable').textContent = path.length;
+
+  log(`✅ MST-Guided: coarse ${tree.visited.size}/${coarse*coarse} cells (target ${coveragePct}%)`, 'ok');
+  log(`🔁 Retries needed: ${retries}/${MAX_RETRY}`, retries === 0 ? 'ok' : (retries < MAX_RETRY ? 'warn' : 'warn'));
+  log(`🌲 Fine path length: ${path.length} (expected ${expectedCovered})`, matchOk ? 'ok' : 'warn');
+  if (!matchOk) log('⚠️ ไม่เจอ config ที่ valid ใน 30 รอบ — ผลลัพธ์นี้อาจมีช่องไม่ครบ', 'warn');
+  log(noDup ? '✅ No duplicate fine cells' : '⚠️ มีช่องซ้ำ! (bug)', noDup ? 'ok' : 'warn');
+  log(isClosedNeighbor ? '✅ ปลายทั้งสองชิดกัน (cycle ถูกตัดเป็น path ที่ถูกต้อง)' : '⚠️ ปลายไม่ชิดกัน', isClosedNeighbor ? 'ok' : 'warn');
+  log(`🔀 Crossings: ${analysis.crossings} | 🔶 Decisions: ${analysis.decisionPoints}`, 'info');
+  log(`🧩 Holes: ${totalFine - path.length} / ${totalFine}`, 'info');
+
+  document.getElementById('pathList').textContent = JSON.stringify(path);
+
+  const animate = document.getElementById('animCheck').checked;
+  if (animate && path.length <= 150) {
+    drawAnimated(path, fw, new Set(), holeSet);
+  } else {
+    drawGrid(path, fw, new Set(), holeSet);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Generate';
+}
+
+// Init
+drawEmpty(currentSize);
+</script>
+</body>
+</html>
