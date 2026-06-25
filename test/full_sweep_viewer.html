@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Full Sweep Results — Hole% × Accept Rate × Grid Size</title>
+<style>
+  body { font-family: system-ui, "TH Sarabun New", sans-serif; max-width: 1100px; margin: 2rem auto; padding: 0 1rem; background: #0f1117; color: #e0e0e0; }
+  h1 { font-size: 20px; color: #7dd3fc; margin-bottom: 4px; }
+  h2 { font-size: 15px; color: #94a3b8; margin: 28px 0 8px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 18px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab { padding: 7px 16px; border-radius: 8px; border: 1px solid #2d3148; background: #1e2130; color: #94a3b8; cursor: pointer; font-size: 13px; }
+  .tab.active { background: #1d4ed8; border-color: #3b82f6; color: #fff; }
+  table.heatmap { border-collapse: collapse; font-size: 12px; }
+  table.heatmap th, table.heatmap td { padding: 6px 8px; text-align: center; border: 1px solid #1e2130; }
+  table.heatmap th { color: #94a3b8; font-weight: 500; background: #1e2130; }
+  .chart-wrap { position: relative; width: 100%; height: 320px; margin-bottom: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #94a3b8; margin-bottom: 18px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  .note { font-size: 12px; color: #64748b; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+  <a href="../index.html" style="padding:6px 14px; border-radius:8px; border:1px solid #2d3148; background:#1e2130; color:#7dd3fc; font-size:13px; text-decoration:none;">🔬 Visualizer</a>
+  <a href="../hamilton_puzzle.html" style="padding:6px 14px; border-radius:8px; border:1px solid #2d3148; background:#1e2130; color:#7dd3fc; font-size:13px; text-decoration:none;">🎮 เล่นด่านจริง</a>
+  <a href="experiment.html" style="padding:6px 14px; border-radius:8px; border:1px solid #2d3148; background:#1e2130; color:#7dd3fc; font-size:13px; text-decoration:none;">🧪 Experiment (standalone)</a>
+</div>
+
+<h1>Full Sweep Results</h1>
+<div class="sub">กริด 3×3 → 9×9 (13 ขนาด) × รู 10/15/20/25/30% × accept rate 75/80/85/90/95% × max attempts 10,000 × 10 trials/combo (รวม 3,250 รอบจำลอง)</div>
+
+<div class="tabs" id="acceptTabs"></div>
+
+<h2>Success Rate Heatmap (แถว = % รู, คอลัมน์ = ขนาดกริด)</h2>
+<div id="heatmapWrap"></div>
+<div class="note">เขียว ≥80% • เหลือง 50–79% • แดง &lt;50%</div>
+
+<h2>Mean Score (เฉลี่ยเฉพาะรอบที่สำเร็จ) เทียบขนาดกริด แยกตาม % รู</h2>
+<div class="chart-wrap"><canvas id="scoreChart" role="img" aria-label="Line chart of mean deception score versus grid size, one line per hole percentage"></canvas></div>
+
+<h2>Mean Attempts ก่อนสำเร็จ (หรือชน cap) เทียบขนาดกริด แยกตาม % รู</h2>
+<div class="chart-wrap"><canvas id="attemptsChart" role="img" aria-label="Line chart of mean attempts before success or cap versus grid size, one line per hole percentage"></canvas></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const HOLE_PCTS = [0.10, 0.15, 0.20, 0.25, 0.30];
+const ACCEPTS = [0.75, 0.80, 0.85, 0.90, 0.95];
+const SIZES = ['3x3','3x4','4x4','4x5','5x5','5x6','6x6','6x7','7x7','7x8','8x8','8x9','9x9'];
+const HOLE_COLORS = ['#7dd3fc','#a78bfa','#fbbf24','#fb7185','#4ade80'];
+
+let allData = [];
+let scoreChart = null, attemptsChart = null;
+let currentAccept = 0.80;
+
+function colorFor(v) {
+  if (v >= 0.8) return { bg: '#173404', fg: '#c0dd97' };
+  if (v >= 0.5) return { bg: '#412402', fg: '#fac775' };
+  return { bg: '#501313', fg: '#f7c1c1' };
+}
+
+function renderTabs() {
+  const el = document.getElementById('acceptTabs');
+  el.innerHTML = '';
+  ACCEPTS.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (a === currentAccept ? ' active' : '');
+    btn.textContent = 'accept ' + Math.round(a*100) + '%';
+    btn.onclick = () => { currentAccept = a; render(); };
+    el.appendChild(btn);
+  });
+}
+
+function renderHeatmap() {
+  const wrap = document.getElementById('heatmapWrap');
+  const table = document.createElement('table');
+  table.className = 'heatmap';
+  const head = document.createElement('tr');
+  head.appendChild(document.createElement('th'));
+  SIZES.forEach(s => { const th = document.createElement('th'); th.textContent = s; head.appendChild(th); });
+  table.appendChild(head);
+  HOLE_PCTS.forEach(hp => {
+    const row = document.createElement('tr');
+    const label = document.createElement('th');
+    label.textContent = Math.round(hp*100) + '% รู';
+    row.appendChild(label);
+    SIZES.forEach(sizeStr => {
+      const rec = allData.find(d => d.size === sizeStr && d.holePct === hp && d.threshold === currentAccept);
+      const v = rec ? rec.successRate : 0;
+      const { bg, fg } = colorFor(v);
+      const td = document.createElement('td');
+      td.style.background = bg; td.style.color = fg; td.style.fontWeight = '600';
+      td.textContent = Math.round(v*100) + '%';
+      row.appendChild(td);
+    });
+    table.appendChild(row);
+  });
+  wrap.innerHTML = '';
+  wrap.appendChild(table);
+}
+
+function buildLineDatasets(metricKey) {
+  return HOLE_PCTS.map((hp, i) => ({
+    label: Math.round(hp*100) + '% รู',
+    data: SIZES.map(sizeStr => {
+      const rec = allData.find(d => d.size === sizeStr && d.holePct === hp && d.threshold === currentAccept);
+      return rec ? rec[metricKey] : null;
+    }),
+    borderColor: HOLE_COLORS[i],
+    backgroundColor: HOLE_COLORS[i],
+    borderWidth: 2,
+    pointRadius: 3,
+    spanGaps: true,
+    tension: 0.2
+  }));
+}
+
+function renderCharts() {
+  const scoreCtx = document.getElementById('scoreChart');
+  const attemptsCtx = document.getElementById('attemptsChart');
+
+  const scoreDatasets = buildLineDatasets('meanScore');
+  const attemptsDatasets = buildLineDatasets('meanAttempts');
+
+  if (scoreChart) scoreChart.destroy();
+  if (attemptsChart) attemptsChart.destroy();
+
+  scoreChart = new Chart(scoreCtx, {
+    type: 'line',
+    data: { labels: SIZES, datasets: scoreDatasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2130' } },
+        y: { min: 0, max: 100, ticks: { color: '#94a3b8' }, grid: { color: '#1e2130' }, title: { display: true, text: 'mean score (n successful)', color: '#94a3b8' } }
+      },
+      plugins: { legend: { labels: { color: '#94a3b8' } } }
+    }
+  });
+
+  attemptsChart = new Chart(attemptsCtx, {
+    type: 'line',
+    data: { labels: SIZES, datasets: attemptsDatasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2130' } },
+        y: { type: 'logarithmic', ticks: { color: '#94a3b8' }, grid: { color: '#1e2130' }, title: { display: true, text: 'mean attempts (log scale, cap=10,000)', color: '#94a3b8' } }
+      },
+      plugins: { legend: { labels: { color: '#94a3b8' } } }
+    }
+  });
+}
+
+function render() {
+  renderTabs();
+  renderHeatmap();
+  renderCharts();
+}
+
+fetch('./full_sweep_results.json')
+  .then(r => r.json())
+  .then(data => { allData = data; render(); })
+  .catch(err => {
+    document.body.innerHTML = '<p style="color:#f87171">โหลด full_sweep_results.json ไม่สำเร็จ: ' + err.message + '</p>';
+  });
+</script>
+</body>
+</html>

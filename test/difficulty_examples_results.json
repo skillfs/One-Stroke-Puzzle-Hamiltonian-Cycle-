@@ -1,0 +1,173 @@
+{
+  "size": 5,
+  "buckets": {
+    "Easy": [
+      {
+        "moves": 65,
+        "score": 20,
+        "stats": {
+          "deadEnds": 0,
+          "branches": 16,
+          "nodesVisited": 24
+        },
+        "grid": " 17 18 19 20 25\n 16 13 12 21 24\n 15 14 11 22 23\n  2  3 10  9  8\n  1  4  5  6  7",
+        "start": [
+          4,
+          0
+        ],
+        "end": [
+          0,
+          4
+        ]
+      },
+      {
+        "moves": 191,
+        "score": 20,
+        "stats": {
+          "deadEnds": 0,
+          "branches": 16,
+          "nodesVisited": 24
+        },
+        "grid": " 21 20 19 18 17\n 22 25 10 11 16\n 23 24  9 12 15\n  6  7  8 13 14\n  5  4  3  2  1",
+        "start": [
+          4,
+          4
+        ],
+        "end": [
+          1,
+          1
+        ]
+      },
+      {
+        "moves": 138,
+        "score": 20,
+        "stats": {
+          "deadEnds": 0,
+          "branches": 16,
+          "nodesVisited": 24
+        },
+        "grid": " 13 12 11 10  9\n 14 15 24 23  8\n 17 16 25 22  7\n 18 19 20 21  6\n  1  2  3  4  5",
+        "start": [
+          4,
+          0
+        ],
+        "end": [
+          2,
+          2
+        ]
+      }
+    ],
+    "Medium": [
+      {
+        "moves": 15,
+        "score": 58,
+        "stats": {
+          "deadEnds": 24,
+          "branches": 34,
+          "nodesVisited": 119
+        },
+        "grid": " 17 18 25 24 23\n 16 19 20 21 22\n 15 14 13 12 11\n  4  3  2  1 10\n  5  6  7  8  9",
+        "start": [
+          3,
+          3
+        ],
+        "end": [
+          0,
+          2
+        ]
+      },
+      {
+        "moves": 104,
+        "score": 58,
+        "stats": {
+          "deadEnds": 24,
+          "branches": 34,
+          "nodesVisited": 119
+        },
+        "grid": " 15 16 17 18 19\n 14 13 22 21 20\n 11 12 23  2  3\n 10 25 24  1  4\n  9  8  7  6  5",
+        "start": [
+          3,
+          3
+        ],
+        "end": [
+          3,
+          1
+        ]
+      },
+      {
+        "moves": 10,
+        "score": 58,
+        "stats": {
+          "deadEnds": 24,
+          "branches": 34,
+          "nodesVisited": 119
+        },
+        "grid": " 17 18 19 20 21\n 16 25 24 23 22\n 15 14 13 12 11\n  4  3  2  1 10\n  5  6  7  8  9",
+        "start": [
+          3,
+          3
+        ],
+        "end": [
+          1,
+          1
+        ]
+      }
+    ],
+    "Hard": [
+      {
+        "moves": 70,
+        "score": 82,
+        "stats": {
+          "deadEnds": 46,
+          "branches": 56,
+          "nodesVisited": 201
+        },
+        "grid": "  5  4  1 24 23\n  6  3  2 25 22\n  7  8  9 20 21\n 12 11 10 19 18\n 13 14 15 16 17",
+        "start": [
+          0,
+          2
+        ],
+        "end": [
+          1,
+          3
+        ]
+      },
+      {
+        "moves": 176,
+        "score": 100,
+        "stats": {
+          "deadEnds": 290,
+          "branches": 279,
+          "nodesVisited": 1164
+        },
+        "grid": " 21 22 23 24 25\n 20 19 18 15 14\n  1  2 17 16 13\n  4  3  8  9 12\n  5  6  7 10 11",
+        "start": [
+          2,
+          0
+        ],
+        "end": [
+          0,
+          4
+        ]
+      },
+      {
+        "moves": 93,
+        "score": 82,
+        "stats": {
+          "deadEnds": 46,
+          "branches": 56,
+          "nodesVisited": 201
+        },
+        "grid": "  3  2  1  8  9\n  4  5  6  7 10\n 23 22 17 16 11\n 24 21 18 15 12\n 25 20 19 14 13",
+        "start": [
+          0,
+          2
+        ],
+        "end": [
+          4,
+          0
+        ]
+      }
+    ]
+  }
+}

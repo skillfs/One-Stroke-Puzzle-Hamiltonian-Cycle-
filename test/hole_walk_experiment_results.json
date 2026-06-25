@@ -1,0 +1,402 @@
+[
+  {
+    "size": 5,
+    "holePct": 0.3,
+    "threshold": 0.8,
+    "successRate": 0.3333333333333333,
+    "meanAttempts": 202,
+    "meanCoverage": 0.5777777777777778,
+    "meanScore": 20.6,
+    "scoreCount": 5
+  },
+  {
+    "size": 5,
+    "holePct": 0.3,
+    "threshold": 0.9,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.6444444444444444,
+    "meanScore": null,
+    "scoreCount": 0
+  },
+  {
+    "size": 5,
+    "holePct": 0.25,
+    "threshold": 0.8,
+    "successRate": 0.26666666666666666,
+    "meanAttempts": 222.8,
+    "meanCoverage": 0.6035087719298244,
+    "meanScore": 51.25,
+    "scoreCount": 4
+  },
+  {
+    "size": 5,
+    "holePct": 0.25,
+    "threshold": 0.9,
+    "successRate": 0.26666666666666666,
+    "meanAttempts": 222.06666666666666,
+    "meanCoverage": 0.8666666666666667,
+    "meanScore": 31.25,
+    "scoreCount": 4
+  },
+  {
+    "size": 5,
+    "holePct": 0.2,
+    "threshold": 0.8,
+    "successRate": 0.6,
+    "meanAttempts": 137.4,
+    "meanCoverage": 0.7733333333333332,
+    "meanScore": 40.333333333333336,
+    "scoreCount": 9
+  },
+  {
+    "size": 5,
+    "holePct": 0.2,
+    "threshold": 0.9,
+    "successRate": 0.3333333333333333,
+    "meanAttempts": 208.4,
+    "meanCoverage": 0.83,
+    "meanScore": 51.2,
+    "scoreCount": 5
+  },
+  {
+    "size": 5,
+    "holePct": 0.15,
+    "threshold": 0.8,
+    "successRate": 1,
+    "meanAttempts": 24.333333333333332,
+    "meanCoverage": 0.8666666666666667,
+    "meanScore": 69.86666666666666,
+    "scoreCount": 15
+  },
+  {
+    "size": 5,
+    "holePct": 0.15,
+    "threshold": 0.9,
+    "successRate": 0.8666666666666667,
+    "meanAttempts": 79.53333333333333,
+    "meanCoverage": 0.9151515151515148,
+    "meanScore": 69.6923076923077,
+    "scoreCount": 13
+  },
+  {
+    "size": 5,
+    "holePct": 0.1,
+    "threshold": 0.8,
+    "successRate": 1,
+    "meanAttempts": 5.133333333333334,
+    "meanCoverage": 0.8811594202898549,
+    "meanScore": 66.93333333333334,
+    "scoreCount": 15
+  },
+  {
+    "size": 5,
+    "holePct": 0.1,
+    "threshold": 0.9,
+    "successRate": 0.8666666666666667,
+    "meanAttempts": 48.666666666666664,
+    "meanCoverage": 0.9333333333333332,
+    "meanScore": 68.3076923076923,
+    "scoreCount": 13
+  },
+  {
+    "size": 6,
+    "holePct": 0.3,
+    "threshold": 0.8,
+    "successRate": 0.26666666666666666,
+    "meanAttempts": 223.33333333333334,
+    "meanCoverage": 0.6512820512820513,
+    "meanScore": 64.75,
+    "scoreCount": 4
+  },
+  {
+    "size": 6,
+    "holePct": 0.3,
+    "threshold": 0.9,
+    "successRate": 0.06666666666666667,
+    "meanAttempts": 296.26666666666665,
+    "meanCoverage": 0.6974358974358974,
+    "meanScore": 97,
+    "scoreCount": 1
+  },
+  {
+    "size": 6,
+    "holePct": 0.25,
+    "threshold": 0.8,
+    "successRate": 0.5333333333333333,
+    "meanAttempts": 163.46666666666667,
+    "meanCoverage": 0.7654320987654321,
+    "meanScore": 54.375,
+    "scoreCount": 8
+  },
+  {
+    "size": 6,
+    "holePct": 0.25,
+    "threshold": 0.9,
+    "successRate": 0.26666666666666666,
+    "meanAttempts": 229.2,
+    "meanCoverage": 0.8098765432098767,
+    "meanScore": 31.5,
+    "scoreCount": 4
+  },
+  {
+    "size": 6,
+    "holePct": 0.2,
+    "threshold": 0.8,
+    "successRate": 0.6,
+    "meanAttempts": 156.93333333333334,
+    "meanCoverage": 0.8022988505747127,
+    "meanScore": 85.55555555555556,
+    "scoreCount": 9
+  },
+  {
+    "size": 6,
+    "holePct": 0.2,
+    "threshold": 0.9,
+    "successRate": 0.13333333333333333,
+    "meanAttempts": 277.2,
+    "meanCoverage": 0.8091954022988505,
+    "meanScore": 91.5,
+    "scoreCount": 2
+  },
+  {
+    "size": 6,
+    "holePct": 0.15,
+    "threshold": 0.8,
+    "successRate": 0.9333333333333333,
+    "meanAttempts": 63.53333333333333,
+    "meanCoverage": 0.8473118279569892,
+    "meanScore": 80.35714285714286,
+    "scoreCount": 14
+  },
+  {
+    "size": 6,
+    "holePct": 0.15,
+    "threshold": 0.9,
+    "successRate": 0.4666666666666667,
+    "meanAttempts": 199.86666666666667,
+    "meanCoverage": 0.8623655913978495,
+    "meanScore": 71,
+    "scoreCount": 7
+  },
+  {
+    "size": 6,
+    "holePct": 0.1,
+    "threshold": 0.8,
+    "successRate": 1,
+    "meanAttempts": 39,
+    "meanCoverage": 0.8727272727272728,
+    "meanScore": 90.86666666666666,
+    "scoreCount": 15
+  },
+  {
+    "size": 6,
+    "holePct": 0.1,
+    "threshold": 0.9,
+    "successRate": 0.8666666666666667,
+    "meanAttempts": 85.13333333333334,
+    "meanCoverage": 0.9111111111111109,
+    "meanScore": 90.23076923076923,
+    "scoreCount": 13
+  },
+  {
+    "size": 7,
+    "holePct": 0.3,
+    "threshold": 0.8,
+    "successRate": 0.2,
+    "meanAttempts": 265.6,
+    "meanCoverage": 0.6533333333333335,
+    "meanScore": 84.33333333333333,
+    "scoreCount": 3
+  },
+  {
+    "size": 7,
+    "holePct": 0.3,
+    "threshold": 0.9,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.5885714285714286,
+    "meanScore": null,
+    "scoreCount": 0
+  },
+  {
+    "size": 7,
+    "holePct": 0.25,
+    "threshold": 0.8,
+    "successRate": 0.4,
+    "meanAttempts": 204.8,
+    "meanCoverage": 0.7477477477477479,
+    "meanScore": 61.166666666666664,
+    "scoreCount": 6
+  },
+  {
+    "size": 7,
+    "holePct": 0.25,
+    "threshold": 0.9,
+    "successRate": 0.06666666666666667,
+    "meanAttempts": 291.73333333333335,
+    "meanCoverage": 0.754954954954955,
+    "meanScore": 100,
+    "scoreCount": 1
+  },
+  {
+    "size": 7,
+    "holePct": 0.2,
+    "threshold": 0.8,
+    "successRate": 0.5333333333333333,
+    "meanAttempts": 183.13333333333333,
+    "meanCoverage": 0.7816666666666665,
+    "meanScore": 89,
+    "scoreCount": 8
+  },
+  {
+    "size": 7,
+    "holePct": 0.2,
+    "threshold": 0.9,
+    "successRate": 0.06666666666666667,
+    "meanAttempts": 282.6,
+    "meanCoverage": 0.8066666666666666,
+    "meanScore": 100,
+    "scoreCount": 1
+  },
+  {
+    "size": 7,
+    "holePct": 0.15,
+    "threshold": 0.8,
+    "successRate": 0.5333333333333333,
+    "meanAttempts": 186.53333333333333,
+    "meanCoverage": 0.788888888888889,
+    "meanScore": 96.75,
+    "scoreCount": 8
+  },
+  {
+    "size": 7,
+    "holePct": 0.15,
+    "threshold": 0.9,
+    "successRate": 0.2,
+    "meanAttempts": 259.6666666666667,
+    "meanCoverage": 0.8174603174603176,
+    "meanScore": 73.33333333333333,
+    "scoreCount": 3
+  },
+  {
+    "size": 7,
+    "holePct": 0.1,
+    "threshold": 0.8,
+    "successRate": 1,
+    "meanAttempts": 57.4,
+    "meanCoverage": 0.8192592592592595,
+    "meanScore": 96.73333333333333,
+    "scoreCount": 15
+  },
+  {
+    "size": 7,
+    "holePct": 0.1,
+    "threshold": 0.9,
+    "successRate": 0.2,
+    "meanAttempts": 255.26666666666668,
+    "meanCoverage": 0.8711111111111113,
+    "meanScore": 96,
+    "scoreCount": 3
+  },
+  {
+    "size": 8,
+    "holePct": 0.3,
+    "threshold": 0.8,
+    "successRate": 0.06666666666666667,
+    "meanAttempts": 289.8,
+    "meanCoverage": 0.5229629629629631,
+    "meanScore": 95,
+    "scoreCount": 1
+  },
+  {
+    "size": 8,
+    "holePct": 0.3,
+    "threshold": 0.9,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.5377777777777779,
+    "meanScore": null,
+    "scoreCount": 0
+  },
+  {
+    "size": 8,
+    "holePct": 0.25,
+    "threshold": 0.8,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.6236111111111112,
+    "meanScore": null,
+    "scoreCount": 0
+  },
+  {
+    "size": 8,
+    "holePct": 0.25,
+    "threshold": 0.9,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.65,
+    "meanScore": null,
+    "scoreCount": 0
+  },
+  {
+    "size": 8,
+    "holePct": 0.2,
+    "threshold": 0.8,
+    "successRate": 0.3333333333333333,
+    "meanAttempts": 245.73333333333332,
+    "meanCoverage": 0.7564102564102566,
+    "meanScore": 99.2,
+    "scoreCount": 5
+  },
+  {
+    "size": 8,
+    "holePct": 0.2,
+    "threshold": 0.9,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.7487179487179488,
+    "meanScore": null,
+    "scoreCount": 0
+  },
+  {
+    "size": 8,
+    "holePct": 0.15,
+    "threshold": 0.8,
+    "successRate": 0.4666666666666667,
+    "meanAttempts": 187.13333333333333,
+    "meanCoverage": 0.7806060606060606,
+    "meanScore": 99.28571428571429,
+    "scoreCount": 7
+  },
+  {
+    "size": 8,
+    "holePct": 0.15,
+    "threshold": 0.9,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.7939393939393941,
+    "meanScore": null,
+    "scoreCount": 0
+  },
+  {
+    "size": 8,
+    "holePct": 0.1,
+    "threshold": 0.8,
+    "successRate": 0.6,
+    "meanAttempts": 174.66666666666666,
+    "meanCoverage": 0.8287356321839082,
+    "meanScore": 100,
+    "scoreCount": 9
+  },
+  {
+    "size": 8,
+    "holePct": 0.1,
+    "threshold": 0.9,
+    "successRate": 0,
+    "meanAttempts": 300,
+    "meanCoverage": 0.8091954022988506,
+    "meanScore": null,
+    "scoreCount": 0
+  }
+]

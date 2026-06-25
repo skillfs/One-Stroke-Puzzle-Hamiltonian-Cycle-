@@ -140,4 +140,46 @@
 
 ---
 
-*อัปเดตล่าสุด: 2026-06-16*
+## หมวด 8: MST-Guided Generation, Wall-Following & Branching Solutions
+
+> เพิ่มเข้ามาจากการค้นหาเพื่อแก้ปัญหา "branching" ที่เจอตอน implement MST-Guided mode (ดู Dev Log → บั๊กที่เจอ #3-4)
+
+### [20] Nokia 6110 Snake Project — Algorithms (John Tapsell)
+- **Author:** John Tapsell
+- **Source:** johnflux.com
+- **URL:** https://johnflux.com/2015/05/02/nokia-6110-part-3-algorithms/
+- **ใช้อ้างอิง:** **ตรงกับเทคนิคที่ implement จริงใน MST-Guided mode** — ใช้ Prim's Algorithm สร้าง maze บน coarse grid (ครึ่งขนาด) แล้ว "ขยาย" (double) ให้ path กว้าง 2 cells จากนั้นเดินตามกฎ "เลี้ยวซ้ายเมื่อทำได้" (left-hand rule) จะได้ Hamiltonian Cycle เสมอ — เป็นแหล่งต้นตอของแนวคิด coarse-grid-doubling ที่ผู้ใช้นำมาเสนอ (MST-Guided idea) ควรอ้างอิงเป็น primary source ของ technique นี้ใน Methodology
+
+### [21] Snake: Hamiltonian Cycle (Nigel Chin)
+- **Author:** Nigel Chin
+- **Source:** kychin.netlify.app
+- **URL:** https://kychin.netlify.app/snake-blog/hamiltonian-cycle/
+- **ใช้อ้างอิง:** สรุปเปรียบเทียบหลายเทคนิคสร้าง Hamiltonian Cycle สำหรับ Snake AI รวมถึงข้อจำกัดของวิธี Tapsell ("ใช้ยากถ้ามี wall จริงในพื้นที่เล่น" — ตรงกับปัญหาที่เราเจอเรื่อง branching/holes พอดี) และอธิบายแนวทางอื่นจาก Alhalabi et al. ที่ทำงานบน full grid โดยตรงผ่าน edge-reflection — **อาจเป็นทางแก้ของ Bug #3/#4** (รองรับ branching ได้โดยไม่ต้องทำ per-node port table)
+
+### [22] Efficient Solution for Finding Hamilton Cycles in Undirected Graphs
+- **Authors:** Alhalabi, W., Kitanneh, O., Alharbi, A., Balfakih, Z., Sarirete, A.
+- **Year:** 2016
+- **Journal:** SpringerPlus
+- **URL:** https://link.springer.com/article/10.1186/s40064-016-2746-8
+- **ใช้อ้างอิง:** เสนอเงื่อนไขจำเป็น (necessary condition) สำหรับ Hamilton Cycle บน graph ทั่วไป พร้อม algorithm 3 ขั้น (Deletion → Destroyer Reflection → Connector Reflection) ที่จัดการ vertex degree-3 ได้โดยตรงผ่านการ "reflect" เส้นทางสลับ edge — **น่าจะนำมาปรับใช้แทนวิธี wall-following เดิม เพื่อรองรับ general spanning tree ที่แตกแขนงได้** (เป้าหมายต่อไปของ MST-Guided mode)
+
+### [23] Nonreversible Markov Chain Monte Carlo Algorithm for Efficient Generation of Self-Avoiding Walks
+- **Year:** 2021
+- **Source:** arXiv:2107.11542 / Frontiers in Physics
+- **URL:** https://arxiv.org/pdf/2107.11542
+- **ใช้อ้างอิง:** วิธี generate self-avoiding walk ด้วย Markov Chain ที่ไม่ reversible — เร็วกว่าวิธีสุ่มทั่วไป อาจนำมาปรับใช้กับ coarse-level self-avoiding walk ใน MST-Guided mode (ปัจจุบันใช้ naive random + retry)
+
+### [24] A Framework for Loop and Path Puzzle Satisfiability — NP-Hardness Results
+- **Year:** 2022
+- **Source:** arXiv:2202.02046
+- **URL:** https://arxiv.org/pdf/2202.02046
+- **ใช้อ้างอิง:** วิเคราะห์ความซับซ้อนของ "loop and path puzzles" เป็นกลุ่ม (รวม Numberlink, Slitherlink ที่เป็น genre ใกล้เคียงกับ One-Stroke) — ใช้เปรียบเทียบตำแหน่งของ One-Stroke puzzle ในแผนที่ความซับซ้อนของ path-puzzle ทั้งหมดใน Literature Review
+
+### [25] Longest Path Problem — NP-Hardness via Reduction (Karp, 1972)
+- **Source:** Wikipedia / Karp's 21 NP-Complete Problems (1972)
+- **URL:** https://en.wikipedia.org/wiki/Longest_path_problem
+- **ใช้อ้างอิง:** Reduction พิสูจน์ว่า Longest Path Problem เป็น NP-hard ผ่าน Hamiltonian Path Problem (graph มี Hamiltonian path ก็ต่อเมื่อ longest path มีความยาว n−1) — ใช้สนับสนุนเหตุผลที่ตัดแนวคิด "เจาะ space แล้วหา longest path" ออกจาก methodology (อ้างอิงทางการที่ใช้แทน reasoning เดิม)
+
+---
+
+*อัปเดตล่าสุด: 2026-06-23*

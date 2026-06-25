@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg">
 <title>Backbite Algorithm Visualizer</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -152,6 +153,20 @@
     width: 100%;
     display: none;
   }
+
+  /* Experiment mode — DOM grid cells + comparison cards */
+  .exp-cell { display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 4px; }
+  .exp-cell.hole { background: #05060a; color: #444; }
+  .exp-cell.walked { background: #1d6e56; color: #d8fff0; font-weight: 600; }
+  .exp-cell.unwalked { background: #5c1a1a; color: #fcdada; }
+  .exp-cell.start { outline: 2px solid #7dd3fc; }
+  .exp-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 6px; }
+  .exp-badge.Easy { background: #27500a; color: #c0dd97; }
+  .exp-badge.Medium { background: #633806; color: #fac775; }
+  .exp-badge.Hard { background: #501313; color: #f7c1c1; }
+  .exp-badge.Fail { background: #3f4258; color: #cbd0e0; }
+  .exp-card { border: 1px solid #2d3148; border-radius: 8px; padding: 8px; background: #1e2130; }
+  .exp-card-info { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
 
   /* Header + Dev Log button */
   .page-header {
@@ -349,6 +364,12 @@
 </head>
 <body>
 
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+  <a href="hamilton_puzzle.html" style="padding:6px 14px; border-radius:8px; border:1px solid #2d3148; background:#1e2130; color:#7dd3fc; font-size:13px; text-decoration:none;">🎮 เล่นด่านจริง (Hamilton Puzzle)</a>
+  <a href="test/experiment.html" style="padding:6px 14px; border-radius:8px; border:1px solid #2d3148; background:#1e2130; color:#7dd3fc; font-size:13px; text-decoration:none;">🧪 Experiment (standalone)</a>
+  <a href="test/full_sweep_viewer.html" style="padding:6px 14px; border-radius:8px; border:1px solid #2d3148; background:#1e2130; color:#7dd3fc; font-size:13px; text-decoration:none;">📊 Full Sweep Viewer</a>
+</div>
+
 <div class="page-header">
   <div>
     <h1>🔬 Backbite Algorithm Visualizer</h1>
@@ -542,6 +563,31 @@
           </div>
         </div>
 
+        <div class="dl-step">
+          <div class="dl-num">21</div>
+          <div>
+            <div class="dl-step-title">เปิดสมมติฐาน "เจาะรูก่อน + เดิน random จนพอ" อีกครั้ง <span class="dl-tag theory">PIVOT</span></div>
+            <div class="dl-step-body">ย้อนกลับมาทดสอบแนวทางที่เคยตัดทิ้งไว้ (ดูแท็บ 🚫) แต่รอบนี้ผ่อนเงื่อนไขจาก "ต้องครบ 100%" เป็น "เดินให้ได้สัดส่วนที่ยอมรับได้ (เช่น 80%)" แทน — ทดสอบจริงด้วย Node script หลายรอบ พบว่า attrition (เดินสุ่มแล้วติดตันก่อนถึงเป้า) รุนแรงขึ้นเร็วมากตามขนาดกริดและ%รูที่เพิ่มขึ้น ตรงกับที่ทฤษฎีเคยเตือนไว้</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">22</div>
+          <div>
+            <div class="dl-step-title">เพิ่ม Experiment Mode ใน Visualizer <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">ทำเป็น Mode ที่ 4 ในตัวเครื่องมือ (ข้าง Single Grid/Chain/MST-Guided) — กำหนด N×M, %รู, accept rate, max attempts ได้ตรงๆ แล้วดู "grid รอบเดียว" คู่กับ "grid เดียวกัน (รูเดิม) แต่สุ่มจุดเริ่มใหม่" หลายๆใบพร้อมกัน เพื่อแยกให้เห็นว่าความสำเร็จ/ความยากมาจาก "ตำแหน่งรู" หรือ "จุดเริ่ม" กันแน่<br>
+            <b>แก้เพิ่ม:</b> จุดเริ่มสุ่มแบบ <i>ไม่ซ้ำกัน</i> (shuffle-and-take แทน random แบบมีโอกาสซ้ำ) — ถ้าขอจำนวนจุดเริ่มเกินจำนวนช่องที่เดินได้จริง จะ cap ลงอัตโนมัติพร้อม log เตือน</div>
+          </div>
+        </div>
+
+        <div class="dl-step">
+          <div class="dl-num">23</div>
+          <div>
+            <div class="dl-step-title">Full Sweep — ทดสอบทุกขนาดกริด × %รู × accept rate <span class="dl-tag done">DONE</span></div>
+            <div class="dl-step-body">รัน Node script ทดสอบครบ: กริด 3×3 ถึง 9×9 (13 ขนาด ไล่แบบ NxN→NxN+1→N+1xN+1) × %รู (10/15/20/25/30) × accept rate (75/80/85/90/95) × max attempts 10,000 รอบ × 10 trials/combo (รวม 3,250 รอบจำลอง) — ดูผลเต็มในแท็บ "🧩 โหมด &amp; ผลทดสอบ" → "Experiment Mode — Full Sweep"</div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ===== PANE 2: MODES & RESULTS ===== -->
@@ -582,6 +628,21 @@
             <tr><td>Duplicate check</td><td class="dl-result">ไม่มีช่องซ้ำในทุก test</td></tr>
           </table>
           <p style="margin-top:8px;"><b>ข้อจำกัดปัจจุบัน:</b> รองรับแค่ coarse path แบบไม่แตกแขนง (degree≤2) เท่านั้น — general spanning tree ที่แตกแขนงได้ (MST ทฤษฎีเต็ม) ยังทำไม่ได้ เพราะต้องมี per-node "port routing table" ที่ซับซ้อนกว่านี้ (ดูแท็บ Bug)</p>
+        </div>
+
+        <div class="dl-card">
+          <h4>🧪 Mode 4 — Experiment (เจาะรู + Growth-Walk)</h4>
+          <p><b>หลักการ:</b> สุ่มเจาะรู %ตามที่กำหนด → สุ่มจุดเริ่ม → เดิน self-avoiding walk แบบสุ่มจนกว่าจะครอบคลุมสัดส่วนที่ "ยอมรับได้" (accept rate) หรือชน max attempts ก่อน → ส่วนที่เดินไม่ถึงกลายเป็นรูเพิ่ม ไม่ต้องครบ 100% เหมือน Hamiltonian path เต็มรูปแบบ</p>
+          <p style="margin-top:6px;"><b>Full Sweep Test</b> — กริด 3×3→9×9 (13 ขนาด) × รู 10/15/20/25/30% × accept 75/80/85/90/95% × max attempts 10,000 × 10 trials/combo (3,250 รอบจำลอง, รันจบใน ~67 วินาที):</p>
+          <table>
+            <tr><th>ตัวแปร</th><th>ผลเฉลี่ย (success rate)</th></tr>
+            <tr><td>accept rate 75% → 95%</td><td class="dl-result warn">78.0% → 68.2% → 55.1% → 38.8% → 18.5% (ลดลงต่อเนื่องชัดเจน)</td></tr>
+            <tr><td>%รู 10% → 30%</td><td class="dl-result warn">82.2% → 73.1% → 51.1% → 30.0% → 22.2% (ลดลงต่อเนื่องชัดเจน)</td></tr>
+            <tr><td>รู 30% + accept 95% (ทุกขนาด)</td><td class="dl-result warn">เกือบ 0% ทุกกรณี — ใช้งานไม่ได้จริงที่ระดับนี้</td></tr>
+            <tr><td>รู 15% + accept 80% (กริดเล็ก-กลาง)</td><td class="dl-result">80–100% เกือบทุกขนาด — โซนที่ใช้งานได้จริง</td></tr>
+          </table>
+          <p style="margin-top:8px;"><b>ข้อสังเกต:</b> แนวโน้มรวม (เฉลี่ยข้าม combo) ลดลงเรียบตามทั้ง %รู และ accept rate ตามที่ทฤษฎี attrition ของ self-avoiding walk คาดไว้ — แต่ตัวเลขรายช่อง (10 trials/combo) ยัง<b>กระเด้งไม่เรียบ</b> (เช่นบางขนาดกริดที่ใหญ่กว่ากลับ success สูงกว่าขนาดเล็กกว่าในบาง combo) เพราะ sample size ต่อ combo ยังน้อยเกินจะตัดสินอะไรเป็นรายขนาดได้แม่นยำ ต้องเพิ่ม trials ถ้าจะเอาไปสรุปเป็นตัวเลขทางการในเล่ม</p>
+          <p style="margin-top:8px; font-size:0.85rem; color:#7dd3fc;">ดูกราฟ/heatmap แบบ interactive เต็มได้ที่ <code>test/full_sweep_viewer.html</code> (เลือก accept rate ได้ทุกแท็บ) — ข้อมูลดิบอยู่ที่ <code>test/full_sweep_results.json</code></p>
         </div>
 
       </div>
@@ -712,6 +773,37 @@
           <button class="size-btn active" data-mode="single">Single Grid</button>
           <button class="size-btn" data-mode="chain">Chain</button>
           <button class="size-btn" data-mode="mst">MST-Guided</button>
+          <button class="size-btn" data-mode="experiment">Experiment</button>
+        </div>
+      </div>
+
+      <!-- Experiment-only controls -->
+      <div id="experimentControls" style="display:none;">
+        <div class="field">
+          <label>แถว N × คอลัมน์ M</label>
+          <div style="display:flex; gap:8px;">
+            <input type="number" id="expRows" value="6" min="3" max="12" step="1" style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid #2d3148; background:#111420; color:#e0e0e0;">
+            <input type="number" id="expCols" value="6" min="3" max="12" step="1" style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid #2d3148; background:#111420; color:#e0e0e0;">
+          </div>
+        </div>
+        <div class="field">
+          <label>% รู (hole)</label>
+          <input type="number" id="expHolePct" value="15" min="0" max="60" step="1" style="width:90px; padding:6px 8px; border-radius:6px; border:1px solid #2d3148; background:#111420; color:#e0e0e0;">
+        </div>
+        <div class="field">
+          <label>accept rate (%)</label>
+          <input type="number" id="expAcceptPct" value="80" min="10" max="100" step="1" style="width:90px; padding:6px 8px; border-radius:6px; border:1px solid #2d3148; background:#111420; color:#e0e0e0;">
+        </div>
+        <div class="field">
+          <label>max attempts/รอบ</label>
+          <input type="number" id="expMaxAttempts" value="300" min="10" max="2000" step="10" style="width:90px; padding:6px 8px; border-radius:6px; border:1px solid #2d3148; background:#111420; color:#e0e0e0;">
+        </div>
+        <div class="field">
+          <label>จำนวนกริดเปรียบเทียบ (ข้างล่าง)</label>
+          <input type="number" id="expCompareCount" value="10" min="2" max="20" step="1" style="width:90px; padding:6px 8px; border-radius:6px; border:1px solid #2d3148; background:#111420; color:#e0e0e0;">
+        </div>
+        <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">
+          กริดทั้งหมดด้านล่างใช้ "รูเดิม" ชุดเดียวกัน ต่างกันแค่จุดเริ่มที่สุ่มใหม่ทุกครั้ง — กด Generate เพื่อดูว่าการวิ่งคนละรอบบนรูเดิมให้ผลต่างกันแค่ไหน
         </div>
       </div>
 
@@ -759,7 +851,7 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="field" id="qField">
         <label>Quality Factor (q) — <span class="val" id="qVal">1.0</span></label>
         <input type="range" id="qSlider" min="0.1" max="5.0" step="0.1" value="1.0">
         <div style="font-size:0.72rem; color:#64748b; margin-top:4px;">
@@ -775,14 +867,14 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="field" id="seedField">
         <label>Seed (0 = random)</label>
         <input type="number" id="seedInput" value="0" min="0"
           style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #2d3148;
                  background:#111420; color:#e0e0e0; font-size:0.9rem;">
       </div>
 
-      <div class="field">
+      <div class="field" id="animField">
         <label>Show animation</label>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
           <input type="checkbox" id="animCheck" checked
@@ -797,7 +889,7 @@
     <!-- Stats -->
     <div class="panel">
       <h2>📊 Statistics</h2>
-      <div class="stats-grid">
+      <div class="stats-grid" id="defaultStatsGrid">
         <div class="stat-card">
           <div class="label">Grid Size</div>
           <div class="value" id="statSize">—</div>
@@ -847,9 +939,37 @@
           <div class="value" id="statPlayable">—</div>
         </div>
       </div>
-      <div style="font-size:0.7rem;color:#64748b;margin-top:8px;">
+      <div style="font-size:0.7rem;color:#64748b;margin-top:8px;" id="defaultStatsNote">
         *Crossings = คู่ nodes ที่อยู่ติดกันบน Grid แต่ไม่ต่อเนื่องกันใน path (ทำให้ solver สับสน)<br>
         †Decision Points = nodes ที่มี grid-neighbor ≥3 ตัวอยู่ใน path (ต้องเลือกทิศทาง)
+      </div>
+
+      <!-- Experiment mode: Batch summary instead of single-run stats -->
+      <div class="stats-grid" id="expStatsGrid" style="display:none;">
+        <div class="stat-card">
+          <div class="label">Success Rate</div>
+          <div class="value" id="expStatSuccess">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Mean Attempts</div>
+          <div class="value" id="expStatAttempts">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Mean Coverage</div>
+          <div class="value" id="expStatCoverage">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Mean Score</div>
+          <div class="value" id="expStatScore">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Unique Starts</div>
+          <div class="value" id="expStatStarts">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Grid Size</div>
+          <div class="value" id="expStatSize">—</div>
+        </div>
       </div>
 
       <div class="log-box" id="logBox">
@@ -861,7 +981,7 @@
 
   <!-- Visualizer -->
   <div class="viz-panel">
-    <div class="viz-wrap">
+    <div class="viz-wrap" id="defaultVizWrap">
       <h2>🗺️ Grid Visualization</h2>
       <canvas id="gridCanvas" width="480" height="480"></canvas>
       <div class="legend">
@@ -872,6 +992,16 @@
       </div>
       <div class="path-toggle" onclick="togglePath()">▼ แสดง path array</div>
       <div class="path-list" id="pathList"></div>
+    </div>
+
+    <!-- Experiment mode: single grid + multiple "same holes, different start" comparisons -->
+    <div class="viz-wrap" id="expVizWrap" style="display:none; align-items:flex-start;">
+      <h2>🗺️ grid รอบเดียว</h2>
+      <div id="expGrid" style="display:inline-grid; gap:2px;"></div>
+      <div id="expSingleInfo" style="font-size:0.8rem; color:#94a3b8; margin-top:10px; line-height:1.6;"></div>
+
+      <h2 style="margin-top:22px;">🔁 grid เดียวกับข้างบน แต่เปลี่ยนจุดเริ่ม</h2>
+      <div id="expCompareWrap" style="display:flex; flex-wrap:wrap; gap:12px;"></div>
     </div>
   </div>
 
@@ -1525,10 +1655,24 @@ document.getElementById('modeBtns').addEventListener('click', function(e) {
   currentMode = e.target.dataset.mode;
   const chain = currentMode === 'chain';
   const mst = currentMode === 'mst';
+  const experiment = currentMode === 'experiment';
   document.getElementById('chainControls').style.display = chain ? 'block' : 'none';
   document.getElementById('mstControls').style.display = mst ? 'block' : 'none';
-  document.getElementById('sizeField').style.display = (chain || mst) ? 'none' : 'block';
-  document.getElementById('fillField').style.display = (chain || mst) ? 'none' : 'block';
+  document.getElementById('experimentControls').style.display = experiment ? 'block' : 'none';
+  document.getElementById('sizeField').style.display = (chain || mst || experiment) ? 'none' : 'block';
+  document.getElementById('fillField').style.display = (chain || mst || experiment) ? 'none' : 'block';
+  document.getElementById('qField').style.display = experiment ? 'none' : 'block';
+  document.getElementById('seedField').style.display = experiment ? 'none' : 'block';
+  document.getElementById('animField').style.display = experiment ? 'none' : 'block';
+
+  document.getElementById('defaultStatsGrid').style.display = experiment ? 'none' : 'grid';
+  document.getElementById('defaultStatsNote').style.display = experiment ? 'none' : 'block';
+  document.getElementById('expStatsGrid').style.display = experiment ? 'grid' : 'none';
+
+  document.getElementById('defaultVizWrap').style.display = experiment ? 'none' : 'flex';
+  document.getElementById('expVizWrap').style.display = experiment ? 'flex' : 'none';
+
+  if (experiment) return;
   if (chain) drawEmpty(parseInt(document.getElementById('areaSlider').value));
   else if (mst) drawEmpty(parseInt(document.getElementById('mstSizeSlider').value));
   else drawEmpty(currentSize);
@@ -1616,6 +1760,8 @@ function runGenerate() {
 
   clearLog();
   log('▶ เริ่ม generate...', 'info');
+
+  if (currentMode === 'experiment') { setTimeout(runExperiment, 10); return; }
 
   const size = currentSize;
   const q = parseFloat(document.getElementById('qSlider').value);
@@ -1857,6 +2003,210 @@ function runMST() {
   } else {
     drawGrid(path, fw, new Set(), holeSet);
   }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Generate';
+}
+
+// ─────────────────────────────────────────────
+// Experiment mode — hole + growth-walk
+// (random holes, grow self-avoiding walk until coverage threshold met,
+//  unwalked valid cells become holes too; same hole pattern reused
+//  across all comparison runs, only the start point changes)
+// ─────────────────────────────────────────────
+function ekey(r,c){ return r+','+c; }
+function eneighbors(r,c,rows,cols,blocked){
+  return [[-1,0],[1,0],[0,-1],[0,1]]
+    .map(([dr,dc]) => [r+dr,c+dc])
+    .filter(([nr,nc]) => nr>=0 && nr<rows && nc>=0 && nc<cols && !blocked.has(ekey(nr,nc)));
+}
+function expMakeHoles(rows, cols, holePercent) {
+  const total = rows*cols;
+  const numHoles = Math.floor(total * holePercent);
+  const all = [];
+  for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) all.push([r,c]);
+  for (let i=all.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  const holes = new Set(all.slice(0,numHoles).map(([r,c])=>ekey(r,c)));
+  const validCells = all.slice(numHoles);
+  return { holes, validTotal: total-numHoles, validCells };
+}
+function expPickStart(validCells) {
+  return validCells[Math.floor(Math.random()*validCells.length)];
+}
+// shuffle a copy of validCells and take the first n — guarantees no repeated start points
+function expPickDistinctStarts(validCells, n) {
+  const shuffled = validCells.slice();
+  for (let i = shuffled.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, Math.min(n, shuffled.length));
+}
+function expGrowWalk(rows, cols, holes, start) {
+  const visited = new Set([ekey(...start)]);
+  const path = [start];
+  let cur = start;
+  while (true) {
+    const ns = eneighbors(cur[0],cur[1],rows,cols,holes).filter(([r,c])=>!visited.has(ekey(r,c)));
+    if (ns.length===0) break;
+    cur = ns[Math.floor(Math.random()*ns.length)];
+    visited.add(ekey(...cur));
+    path.push(cur);
+  }
+  return path;
+}
+function expAttemptUntilThreshold(rows, cols, holes, start, validTotal, threshold, maxAttempts) {
+  const target = Math.ceil(validTotal*threshold);
+  let best = null;
+  for (let a=1;a<=maxAttempts;a++){
+    const path = expGrowWalk(rows,cols,holes,start);
+    if (!best || path.length>best.length) best = path;
+    if (path.length>=target) return { success:true, attempts:a, path, target };
+  }
+  return { success:false, attempts:maxAttempts, path:best, target };
+}
+function expRunSolver(rows, cols, path, blockedHoles) {
+  const stats = { deadEnds:0, branches:0, nodesVisited:0, capped:false };
+  const visited = new Set();
+  const validSet = new Set(path.map(([r,c])=>ekey(r,c)));
+  const TOTAL = path.length;
+  const NODE_BUDGET = 20000; // safety cap — some instances blow up combinatorially (NP-hard worst case)
+  function solve(r,c,count){
+    if (count===TOTAL) return true;
+    if (stats.nodesVisited >= NODE_BUDGET) { stats.capped = true; return true; }
+    const ns = eneighbors(r,c,rows,cols,blockedHoles).filter(([nr,nc])=>validSet.has(ekey(nr,nc)) && !visited.has(ekey(nr,nc)));
+    if (ns.length===0){ stats.deadEnds++; return false; }
+    if (ns.length>=2) stats.branches++;
+    for (const [nr,nc] of ns){
+      visited.add(ekey(nr,nc));
+      stats.nodesVisited++;
+      if (solve(nr,nc,count+1)) return true;
+      visited.delete(ekey(nr,nc));
+    }
+    return false;
+  }
+  visited.add(ekey(...path[0]));
+  solve(path[0][0],path[0][1],1);
+  return stats;
+}
+function expCalcScore(stats, N) {
+  const deadEndScore = Math.min(stats.deadEnds/(N*2),1.0);
+  const branchScore  = Math.min(stats.branches/N,1.0);
+  const nodesScore   = Math.min(stats.nodesVisited/(N*N),1.0);
+  return Math.round((deadEndScore*0.50 + branchScore*0.30 + nodesScore*0.20)*100);
+}
+function expClassify(score){ if (score<30) return 'Easy'; if (score<65) return 'Medium'; return 'Hard'; }
+
+function expRenderGridInto(el, rows, cols, holes, path, start, cellSize) {
+  cellSize = cellSize || 32;
+  el.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+  el.innerHTML = '';
+  const order = {};
+  path.forEach(([r,c],i) => { order[ekey(r,c)] = i+1; });
+  for (let r=0;r<rows;r++) for (let c=0;c<cols;c++){
+    const div = document.createElement('div');
+    const k = ekey(r,c);
+    div.className = 'exp-cell';
+    div.style.width = cellSize+'px';
+    div.style.height = cellSize+'px';
+    div.style.fontSize = (cellSize <= 24 ? 9 : 12) + 'px';
+    if (holes.has(k)) { div.classList.add('hole'); div.textContent = ''; }
+    else if (order[k] !== undefined) { div.classList.add('walked'); div.textContent = order[k]; }
+    else { div.classList.add('unwalked'); div.textContent = '·'; }
+    if (r===start[0] && c===start[1]) div.classList.add('start');
+    el.appendChild(div);
+  }
+}
+
+function runExperiment() {
+  const btn = document.getElementById('genBtn');
+  const rows = parseInt(document.getElementById('expRows').value);
+  const cols = parseInt(document.getElementById('expCols').value);
+  const holePct = parseInt(document.getElementById('expHolePct').value) / 100;
+  const acceptPct = parseInt(document.getElementById('expAcceptPct').value) / 100;
+  const maxAttempts = parseInt(document.getElementById('expMaxAttempts').value);
+  const compareCount = parseInt(document.getElementById('expCompareCount').value);
+
+  log(`▶ Experiment: ${rows}×${cols}, รู ${(holePct*100).toFixed(0)}%, accept ${(acceptPct*100).toFixed(0)}%`, 'info');
+
+  // one hole layout shared by the top grid AND every comparison card below
+  const { holes, validTotal, validCells } = expMakeHoles(rows, cols, holePct);
+
+  // pick all start points up front, without replacement — top grid + every
+  // comparison card gets a distinct cell (capped at validTotal, can't exceed it)
+  const wanted = compareCount + 1;
+  const starts = expPickDistinctStarts(validCells, wanted);
+  if (wanted > validTotal) {
+    log(`⚠ ขอ ${wanted} จุดเริ่ม แต่กริดนี้มีช่องที่เดินได้แค่ ${validTotal} ช่อง — จำกัดเหลือ ${validTotal} จุด (ไม่ซ้ำ)`, 'warn');
+  }
+
+  const allResults = []; // for batch summary, includes the top grid run too
+
+  // --- top single grid ---
+  const topStart = starts[0];
+  const topResult = expAttemptUntilThreshold(rows, cols, holes, topStart, validTotal, acceptPct, maxAttempts);
+  expRenderGridInto(document.getElementById('expGrid'), rows, cols, holes, topResult.path, topStart, 32);
+  const infoEl = document.getElementById('expSingleInfo');
+  let topScore = null, topStats = null;
+  if (topResult.success) {
+    topStats = expRunSolver(rows, cols, topResult.path, holes);
+    topScore = expCalcScore(topStats, topResult.path.length);
+    const level = expClassify(topScore);
+    infoEl.innerHTML = `success ภายใน <b>${topResult.attempts}</b> attempts, coverage <b>${(topResult.path.length/validTotal*100).toFixed(1)}%</b> (${topResult.path.length}/${validTotal})<br>
+      deadEnds=${topStats.deadEnds} branches=${topStats.branches} score=<b>${topScore}</b> <span class="exp-badge ${level}">${level}</span>
+      ${topStats.capped ? '<br><span style="color:#fbbf24;">(solver ชนเพดาน 20,000 nodes — score เป็นค่าประมาณขั้นต่ำ)</span>' : ''}`;
+  } else {
+    infoEl.innerHTML = `<span class="exp-badge Fail">FAIL</span> ไม่ถึง accept rate ภายใน ${maxAttempts} attempts (coverage สูงสุด ${(topResult.path.length/validTotal*100).toFixed(1)}%)`;
+  }
+  allResults.push({ result: topResult, score: topScore, start: topStart });
+
+  // --- comparison grids: same holes, fresh random start each time ---
+  const wrap = document.getElementById('expCompareWrap');
+  wrap.innerHTML = '';
+  const cellSize = rows > 8 || cols > 8 ? 20 : 26;
+  for (let i = 1; i < starts.length; i++) {
+    const start = starts[i];
+    const result = expAttemptUntilThreshold(rows, cols, holes, start, validTotal, acceptPct, maxAttempts);
+    const card = document.createElement('div');
+    card.className = 'exp-card';
+    const info = document.createElement('div');
+    info.className = 'exp-card-info';
+    let score = null;
+    if (result.success) {
+      const stats = expRunSolver(rows, cols, result.path, holes);
+      score = expCalcScore(stats, result.path.length);
+      const level = expClassify(score);
+      info.innerHTML = `start=(${start[0]},${start[1]}) attempts=${result.attempts}<br>coverage=${(result.path.length/validTotal*100).toFixed(0)}% score=${score} <span class="exp-badge ${level}">${level}</span>`;
+    } else {
+      info.innerHTML = `start=(${start[0]},${start[1]}) <span class="exp-badge Fail">FAIL</span><br>coverage สูงสุด ${(result.path.length/validTotal*100).toFixed(0)}%`;
+    }
+    card.appendChild(info);
+    const gridEl = document.createElement('div');
+    gridEl.style.display = 'inline-grid';
+    gridEl.style.gap = '1px';
+    card.appendChild(gridEl);
+    expRenderGridInto(gridEl, rows, cols, holes, result.path, start, cellSize);
+    wrap.appendChild(card);
+    allResults.push({ result, score, start });
+  }
+
+  // --- batch summary across all runs (top + comparisons) on this SAME hole layout ---
+  const successes = allResults.filter(r => r.result.success);
+  const mean = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : NaN;
+  const successRate = successes.length / allResults.length;
+  const meanAttempts = mean(allResults.map(r => r.result.attempts));
+  const meanCoverage = mean(allResults.map(r => r.result.path.length / validTotal));
+  const scores = successes.map(r => r.score).filter(s => s !== null);
+  const uniqueStarts = new Set(allResults.map(r => ekey(...r.start))).size;
+
+  document.getElementById('expStatSuccess').textContent = (successRate*100).toFixed(0) + '%';
+  document.getElementById('expStatAttempts').textContent = meanAttempts.toFixed(1);
+  document.getElementById('expStatCoverage').textContent = (meanCoverage*100).toFixed(1) + '%';
+  document.getElementById('expStatScore').textContent = scores.length ? mean(scores).toFixed(1) + ` (n=${scores.length})` : 'n/a';
+  document.getElementById('expStatStarts').textContent = uniqueStarts + '/' + allResults.length;
+  document.getElementById('expStatSize').textContent = `${rows}×${cols}`;
+
+  log(`✓ เสร็จ — success rate ${(successRate*100).toFixed(0)}%, mean score ${scores.length ? mean(scores).toFixed(1) : 'n/a'}`, 'ok');
 
   btn.disabled = false;
   btn.textContent = '▶ Generate';

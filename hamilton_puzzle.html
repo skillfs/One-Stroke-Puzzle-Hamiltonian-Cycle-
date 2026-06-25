@@ -1,0 +1,632 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Path — Hamiltonian Puzzle</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --surface2: #222228;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e6f0;
+    --muted: #7a788a;
+    --accent: #7c6fcd;
+    --accent-glow: rgba(124,111,205,0.25);
+    --success: #3db87a;
+    --success-glow: rgba(61,184,122,0.2);
+    --danger: #e05555;
+    --warn: #e0954a;
+    --node-r: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    width: 100%;
+    max-width: 700px;
+    padding: 2rem 1.5rem 1rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .tagline {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .main {
+    width: 100%;
+    max-width: 700px;
+    padding: 0 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .seg {
+    display: flex;
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .seg button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+
+  .seg button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .seg button:hover:not(.active) {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .btn {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { opacity: 0.88; }
+
+  .status-bar {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+  }
+
+  .status-msg {
+    font-size: 0.82rem;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .status-msg.win { color: var(--success); }
+  .status-msg.err { color: var(--danger); }
+  .status-msg.warn { color: var(--warn); }
+
+  .progress {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+  }
+
+  .canvas-wrap {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    box-shadow: 0 0 60px rgba(124,111,205,0.06);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .hint-box {
+    min-height: 28px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 0 2px;
+    transition: color 0.2s;
+  }
+
+  .hint-box.show { color: var(--warn); }
+
+  .algo-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    margin-top: 0.5rem;
+  }
+
+  .algo-card h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+  }
+
+  .algo-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .algo-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 18px;
+  }
+
+  footer {
+    margin-top: auto;
+    padding: 1.5rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+    opacity: 0.5;
+  }
+
+  @media (max-width: 480px) {
+    header { padding: 1.5rem 1rem 0.75rem; }
+    .main { padding: 0 1rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div style="display:flex; gap:8px; flex-wrap:wrap; padding:14px 0 0; width:100%; max-width:480px; justify-content:center;">
+  <a href="index.html" style="padding:6px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.14); background:#18181c; color:#7c6fcd; font-size:13px; text-decoration:none;">🔬 Visualizer</a>
+  <a href="test/experiment.html" style="padding:6px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.14); background:#18181c; color:#7c6fcd; font-size:13px; text-decoration:none;">🧪 Experiment</a>
+  <a href="test/full_sweep_viewer.html" style="padding:6px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.14); background:#18181c; color:#7c6fcd; font-size:13px; text-decoration:none;">📊 Sweep Viewer</a>
+</div>
+
+<header>
+  <div class="logo">one<span>path</span></div>
+  <div class="tagline">Hamiltonian path puzzle</div>
+</header>
+
+<div class="main">
+  <div class="controls">
+    <div class="seg" id="sz-seg">
+      <button onclick="setSize(3,this)">3×3</button>
+      <button onclick="setSize(4,this)" class="active">4×4</button>
+      <button onclick="setSize(5,this)">5×5</button>
+    </div>
+    <button class="btn primary" onclick="newPuzzle()">ด่านใหม่</button>
+    <button class="btn" onclick="resetPath()">↩ เริ่มใหม่</button>
+    <button class="btn" onclick="showHint()">💡 힌트</button>
+    <button class="btn" onclick="solve()">เฉลย</button>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-msg" id="status">คลิกที่ node ใดก็ได้เพื่อเริ่ม</div>
+    <div class="progress" id="progress">0 / 0</div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c"></canvas>
+  </div>
+
+  <div class="hint-box" id="hint"></div>
+
+  <div class="algo-card">
+    <h3>Algorithm</h3>
+    <div class="algo-steps">
+      <div class="algo-step"><span class="step-num">1.</span><span>สร้างกราฟกริด N×N + diagonal แบบสุ่ม และตรวจ connectivity ด้วย BFS</span></div>
+      <div class="algo-step"><span class="step-num">2.</span><span>หา Hamiltonian Path ด้วย Backtracking + Warnsdorff heuristic (เลือก neighbor ที่มีทางออกน้อยที่สุดก่อน)</span></div>
+      <div class="algo-step"><span class="step-num">3.</span><span>รับประกันว่าทุกด่านมีเฉลย — ถ้าหาไม่ได้ภายใน 5 ครั้ง จะสร้างกราฟใหม่</span></div>
+      <div class="algo-step"><span class="step-num">4.</span><span>ผู้เล่นต้องลากผ่านทุก node โดยไม่ซ้ำ และต้องมี edge เชื่อมระหว่าง node คู่นั้น</span></div>
+    </div>
+  </div>
+</div>
+
+<footer>Hamiltonian Path — NP-complete problem</footer>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let G = 4, nodes = [], edges = [], adj = {};
+let path = [], used = new Set(), hovNode = -1;
+let solved = false, solutionPath = [];
+let animFrame = null;
+
+// color palette
+const C = {
+  bg:       '#18181c',
+  edge:     'rgba(255,255,255,0.1)',
+  edgeHov:  'rgba(124,111,205,0.35)',
+  node:     '#222228',
+  nodeBdr:  'rgba(255,255,255,0.15)',
+  nodeHov:  '#2e2e38',
+  visited:  '#4a4480',
+  visitedBdr:'#7c6fcd',
+  current:  '#3db87a',
+  currentBdr:'#5ddfa0',
+  pathLine: '#7c6fcd',
+  solveLinee:'#e0954a',
+  solved:   '#e0954a',
+  solvedBdr:'#f0b56a',
+  text:     '#e8e6f0',
+  textMuted:'#7a788a',
+  textOn:   '#ffffff',
+  order:    '#9b8ee8',
+};
+
+function setSize(n, el) {
+  document.querySelectorAll('#sz-seg button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  G = n;
+  newPuzzle();
+}
+
+function setupCanvas() {
+  const wrap = canvas.parentElement;
+  const W = wrap.clientWidth;
+  const DPR = window.devicePixelRatio || 1;
+  canvas.width = W * DPR;
+  canvas.height = W * DPR;
+  canvas.style.width = W + 'px';
+  canvas.style.height = W + 'px';
+  ctx.scale(DPR, DPR);
+  return W;
+}
+
+function nodePos(i) {
+  const W = canvas.clientWidth;
+  const pad = W * 0.13;
+  const step = (W - pad * 2) / (G - 1);
+  const r = Math.floor(i / G), c = i % G;
+  return { x: pad + c * step, y: pad + r * step };
+}
+
+function addEdge(u, v) {
+  const k = u < v ? `${u}-${v}` : `${v}-${u}`;
+  if (!edges.find(e => e.k === k)) {
+    edges.push({ u, v, k });
+    adj[u].push(v);
+    adj[v].push(u);
+  }
+}
+
+function buildGrid() {
+  nodes = []; edges = []; adj = {};
+  const N = G * G;
+  for (let i = 0; i < N; i++) { nodes.push(i); adj[i] = []; }
+  for (let r = 0; r < G; r++) {
+    for (let c = 0; c < G; c++) {
+      const i = r * G + c;
+      if (c + 1 < G) addEdge(i, r * G + c + 1);
+      if (r + 1 < G) addEdge(i, (r + 1) * G + c);
+      if (r + 1 < G && c + 1 < G && Math.random() < 0.42) addEdge(i, (r + 1) * G + c + 1);
+      if (r + 1 < G && c - 1 >= 0 && Math.random() < 0.35) addEdge(i, (r + 1) * G + c - 1);
+    }
+  }
+  ensureConnected();
+}
+
+function ensureConnected() {
+  const vis = new Set([0]);
+  const q = [0];
+  while (q.length) { const n = q.shift(); for (const nb of adj[n]) if (!vis.has(nb)) { vis.add(nb); q.push(nb); } }
+  for (let i = 0; i < G * G; i++) {
+    if (!vis.has(i)) {
+      const r = Math.floor(i / G), c = i % G;
+      if (c > 0) addEdge(i, i - 1);
+      else if (r > 0) addEdge(i, i - G);
+      vis.add(i);
+    }
+  }
+}
+
+function warnsdorff(n, visited) {
+  return adj[n].filter(x => !visited.has(x)).length;
+}
+
+function backtrack(p, visited, N) {
+  if (p.length === N) return true;
+  const cur = p[p.length - 1];
+  const nbs = adj[cur].filter(n => !visited.has(n));
+  nbs.sort((a, b) => warnsdorff(a, visited) - warnsdorff(b, visited));
+  for (const nb of nbs) {
+    visited.add(nb); p.push(nb);
+    if (backtrack(p, visited, N)) return true;
+    visited.delete(nb); p.pop();
+  }
+  return false;
+}
+
+function findHamiltonianPath() {
+  const N = G * G;
+  for (let start = 0; start < N; start++) {
+    const visited = new Set([start]);
+    const p = [start];
+    if (backtrack(p, visited, N)) return p;
+  }
+  return null;
+}
+
+function newPuzzle() {
+  path = []; used = new Set(); solved = false;
+  setHint('');
+  buildGrid();
+  setupCanvas();
+  solutionPath = findHamiltonianPath() || [];
+  let tries = 0;
+  while (!solutionPath.length && tries++ < 6) { buildGrid(); solutionPath = findHamiltonianPath() || []; }
+  setStatus('คลิกที่ node ใดก็ได้เพื่อเริ่ม', '');
+  setProgress(0);
+  draw();
+}
+
+function resetPath() {
+  path = []; used = new Set(); solved = false;
+  setHint('');
+  setStatus('คลิกที่ node ใดก็ได้เพื่อเริ่ม', '');
+  setProgress(0);
+  draw();
+}
+
+function setStatus(txt, cls) {
+  const el = document.getElementById('status');
+  el.textContent = txt;
+  el.className = 'status-msg' + (cls ? ' ' + cls : '');
+}
+
+function setProgress(n) {
+  document.getElementById('progress').textContent = n + ' / ' + (G * G);
+}
+
+function setHint(txt, show) {
+  const el = document.getElementById('hint');
+  el.textContent = txt;
+  el.className = 'hint-box' + (show ? ' show' : '');
+}
+
+function showHint() {
+  if (!solutionPath.length) { setHint('ไม่มีเฉลยสำหรับด่านนี้', true); return; }
+  if (path.length === 0) { setHint('💡 ลองเริ่มที่ node ' + solutionPath[0], true); return; }
+  const cur = path[path.length - 1];
+  const idx = solutionPath.indexOf(cur);
+  if (idx < 0 || idx >= solutionPath.length - 1) { setHint('💡 ลองเริ่มใหม่ด้วยตำแหน่งอื่น', true); return; }
+  setHint('💡 ต่อไปลองไปที่ node ' + solutionPath[idx + 1], true);
+}
+
+function solve() {
+  if (!solutionPath.length) { setStatus('ไม่มีเฉลย', 'err'); return; }
+  path = [...solutionPath];
+  used = new Set(solutionPath);
+  solved = true;
+  setStatus('✅ เฉลย — ผ่านครบ ' + (G * G) + ' nodes', 'win');
+  setProgress(G * G);
+  draw();
+}
+
+function getNode(x, y) {
+  const W = canvas.clientWidth;
+  const R = W * 0.06;
+  let best = -1, bestD = Infinity;
+  for (let i = 0; i < G * G; i++) {
+    const p = nodePos(i);
+    const d = Math.hypot(x - p.x, y - p.y);
+    if (d < R && d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
+function handleClick(x, y) {
+  if (solved) return;
+  const n = getNode(x, y);
+  if (n < 0) return;
+
+  if (path.length === 0) {
+    path = [n]; used.add(n);
+    setStatus('เริ่มที่ node ' + n, '');
+    setProgress(1);
+    setHint('');
+  } else {
+    const cur = path[path.length - 1];
+    if (n === cur) return;
+    if (used.has(n)) { setStatus('⚠️ node นี้ผ่านแล้ว!', 'err'); return; }
+    const k = cur < n ? `${cur}-${n}` : `${n}-${cur}`;
+    if (!edges.find(e => e.k === k)) { setStatus('⚠️ ไม่มี edge เชื่อมระหว่าง node นี้', 'err'); return; }
+    path.push(n); used.add(n);
+    setProgress(path.length);
+    if (path.length === G * G) {
+      solved = true;
+      setStatus('🎉 สำเร็จ! ผ่านครบ ' + (G * G) + ' nodes!', 'win');
+    } else {
+      setStatus('ผ่านแล้ว ' + path.length + '/' + (G * G) + ' nodes', '');
+    }
+  }
+  draw();
+}
+
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  handleClick(e.clientX - r.left, e.clientY - r.top);
+});
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const r = canvas.getBoundingClientRect();
+  handleClick(t.clientX - r.left, t.clientY - r.top);
+});
+
+canvas.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  const n = getNode(e.clientX - r.left, e.clientY - r.top);
+  if (n !== hovNode) { hovNode = n; draw(); }
+});
+
+canvas.addEventListener('mouseleave', () => { hovNode = -1; draw(); });
+
+function drawArrow(ax, ay, bx, by, color, lw) {
+  const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy);
+  if (len < 1) return;
+  const ux = dx / len, uy = dy / len;
+  const mx = (ax + bx) / 2, my = (ay + by) / 2;
+  ctx.beginPath();
+  ctx.moveTo(mx + ux * 9 - uy * 5, my + uy * 9 + ux * 5);
+  ctx.lineTo(mx + ux * 16, my + uy * 16);
+  ctx.lineTo(mx + ux * 9 + uy * 5, my + uy * 9 - ux * 5);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function draw() {
+  const W = canvas.clientWidth;
+  ctx.clearRect(0, 0, W, W);
+  const R = W * 0.038;
+
+  // edges
+  for (const e of edges) {
+    const a = nodePos(e.u), b = nodePos(e.v);
+    const inPath = (used.has(e.u) && used.has(e.v));
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = C.edge;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // path lines
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = nodePos(path[i]), b = nodePos(path[i + 1]);
+    const col = solved ? C.solveLinee : C.pathLine;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    drawArrow(a.x, a.y, b.x, b.y, col, 3);
+  }
+
+  // nodes
+  for (let i = 0; i < G * G; i++) {
+    const p = nodePos(i);
+    const inPath = used.has(i);
+    const isCur = !solved && path.length > 0 && path[path.length - 1] === i;
+    const isHov = hovNode === i && !inPath && !solved;
+    const isSolved = solved && inPath;
+
+    // glow
+    if (isCur) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, R * 1.6, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(61,184,122,0.15)'; ctx.fill();
+    } else if (isSolved) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, R * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(224,149,74,0.12)'; ctx.fill();
+    }
+
+    ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, Math.PI * 2);
+    if (isCur) ctx.fillStyle = C.current;
+    else if (isSolved) ctx.fillStyle = C.solved;
+    else if (inPath) ctx.fillStyle = C.visited;
+    else if (isHov) ctx.fillStyle = C.nodeHov;
+    else ctx.fillStyle = C.node;
+    ctx.fill();
+
+    ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, Math.PI * 2);
+    if (isCur) ctx.strokeStyle = C.currentBdr;
+    else if (isSolved) ctx.strokeStyle = C.solvedBdr;
+    else if (inPath) ctx.strokeStyle = C.visitedBdr;
+    else ctx.strokeStyle = C.nodeBdr;
+    ctx.lineWidth = isCur ? 2 : 1;
+    ctx.stroke();
+
+    // node number
+    ctx.fillStyle = inPath || isCur ? C.textOn : C.textMuted;
+    ctx.font = `500 ${Math.round(R * 0.75)}px 'Inter', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(i, p.x, p.y);
+
+    // order badge
+    const ord = path.indexOf(i);
+    if (ord >= 0) {
+      ctx.fillStyle = C.order;
+      ctx.font = `700 ${Math.round(R * 0.58)}px 'Space Mono', monospace`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(ord + 1, p.x + R + 3, p.y - R * 0.45);
+    }
+  }
+}
+
+window.addEventListener('resize', () => { setupCanvas(); draw(); });
+newPuzzle();
+</script>
+</body>
+</html>

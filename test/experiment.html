@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>One-Stroke PCG — Hole + Growth-Walk Experiment</title>
+<style>
+  body { font-family: system-ui, "TH Sarabun New", sans-serif; max-width: 980px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 1.5rem; }
+  .panel { display: flex; gap: 16px; flex-wrap: wrap; align-items: end; background: #f4f4f2; border-radius: 10px; padding: 14px 16px; margin-bottom: 1.25rem; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: #555; }
+  .field input { width: 76px; padding: 6px 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 6px; }
+  button { padding: 8px 18px; font-size: 14px; border: none; border-radius: 6px; background: #1f4e79; color: #fff; cursor: pointer; }
+  button:hover { background: #163a5b; }
+  button.secondary { background: #888; }
+  .row { display: flex; gap: 24px; flex-wrap: wrap; }
+  .col { flex: 1; min-width: 280px; }
+  table { border-collapse: collapse; font-size: 13px; width: 100%; }
+  td, th { border: 1px solid #ddd; padding: 4px 8px; text-align: center; }
+  th { background: #1f4e79; color: #fff; }
+  #grid { display: inline-grid; gap: 2px; margin-top: 8px; }
+  .cell { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 4px; }
+  .cell.hole { background: #2c2c2a; color: #666; }
+  .cell.walked { background: #9FE1CB; color: #04342C; font-weight: 600; }
+  .cell.unwalked { background: #F0997B; color: #4A1B0C; }
+  .cell.start { outline: 2px solid #1f4e79; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 6px; }
+  .badge.Easy { background: #C0DD97; color: #173404; }
+  .badge.Medium { background: #FAC775; color: #412402; }
+  .badge.Hard { background: #F7C1C1; color: #501313; }
+  .badge.Fail { background: #ddd; color: #444; }
+  #log { font-size: 12px; color: #666; margin-top: 10px; white-space: pre-wrap; }
+  #summary td.lo { background: #F7C1C1; }
+  #summary td.mid { background: #FAC775; }
+  #summary td.hi { background: #C0DD97; }
+</style>
+</head>
+<body>
+
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+  <a href="../index.html" style="padding:6px 14px; border-radius:8px; border:1px solid #ccc; background:#f4f4f2; color:#1f4e79; font-size:13px; text-decoration:none;">🔬 Visualizer</a>
+  <a href="../hamilton_puzzle.html" style="padding:6px 14px; border-radius:8px; border:1px solid #ccc; background:#f4f4f2; color:#1f4e79; font-size:13px; text-decoration:none;">🎮 เล่นด่านจริง</a>
+  <a href="full_sweep_viewer.html" style="padding:6px 14px; border-radius:8px; border:1px solid #ccc; background:#f4f4f2; color:#1f4e79; font-size:13px; text-decoration:none;">📊 Full Sweep Viewer</a>
+</div>
+
+<h1>One-Stroke PCG — Hole + Growth-Walk Experiment</h1>
+<div class="sub">กำหนดขนาดกริด N×M, % รูที่เจาะ, และ accept rate (% ของช่องที่ต้องเดินผ่านขั้นต่ำ) แล้วรันดูผลจริง</div>
+
+<div class="panel">
+  <div class="field">
+    <label>แถว N</label>
+    <input type="number" id="rows" value="6" min="3" max="12" step="1">
+  </div>
+  <div class="field">
+    <label>คอลัมน์ M</label>
+    <input type="number" id="cols" value="6" min="3" max="12" step="1">
+  </div>
+  <div class="field">
+    <label>% รู (hole)</label>
+    <input type="number" id="holePct" value="15" min="0" max="60" step="1">
+  </div>
+  <div class="field">
+    <label>accept rate (%)</label>
+    <input type="number" id="acceptPct" value="80" min="10" max="100" step="1">
+  </div>
+  <div class="field">
+    <label>max attempts/trial</label>
+    <input type="number" id="maxAttempts" value="300" min="10" max="2000" step="10">
+  </div>
+  <button id="runOne">รัน 1 ครั้ง (ดูกริด)</button>
+</div>
+
+<div class="panel">
+  <div class="field">
+    <label>จำนวน trials (batch)</label>
+    <input type="number" id="trials" value="15" min="1" max="200" step="1">
+  </div>
+  <div class="field" style="flex-direction: row; align-items: center; gap: 6px; padding-bottom: 6px;">
+    <input type="checkbox" id="fixHoles" style="width: auto;">
+    <label for="fixHoles" style="font-size:13px;color:#333;">รูเดิม เปลี่ยนแค่จุดเริ่ม</label>
+  </div>
+  <button id="runBatch" class="secondary">รัน Batch (สรุปสถิติ)</button>
+</div>
+
+<div class="panel">
+  <div class="field">
+    <label>จำนวนการวิ่งที่จะดู</label>
+    <input type="number" id="compareCount" value="6" min="2" max="12" step="1">
+  </div>
+  <button id="runCompare">เทียบรูเดิม — วิ่งหลายครั้งให้ดูพร้อมกัน</button>
+</div>
+<div id="compareWrap" style="display:flex; flex-wrap:wrap; gap:14px; margin-bottom:1.5rem;"></div>
+
+<div class="row">
+  <div class="col">
+    <h3 style="font-size:14px;margin:0 0 4px;">ผลรอบเดียว</h3>
+    <div id="single"></div>
+    <div id="grid"></div>
+  </div>
+  <div class="col">
+    <h3 style="font-size:14px;margin:0 0 4px;">สรุป Batch</h3>
+    <table id="summary">
+      <thead><tr><th>metric</th><th>value</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="log"></div>
+  </div>
+</div>
+
+<script>
+function key(r,c){ return r+','+c; }
+function neighbors(r,c,rows,cols,blocked){
+  return [[-1,0],[1,0],[0,-1],[0,1]]
+    .map(([dr,dc]) => [r+dr,c+dc])
+    .filter(([nr,nc]) => nr>=0 && nr<rows && nc>=0 && nc<cols && !blocked.has(key(nr,nc)));
+}
+
+function makeHoles(rows, cols, holePercent) {
+  const total = rows*cols;
+  const numHoles = Math.floor(total * holePercent);
+  const all = [];
+  for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) all.push([r,c]);
+  for (let i=all.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  const holes = new Set(all.slice(0,numHoles).map(([r,c])=>key(r,c)));
+  const validCells = all.slice(numHoles);
+  return { holes, validTotal: total-numHoles, validCells };
+}
+
+function pickRandomStart(validCells) {
+  return validCells[Math.floor(Math.random()*validCells.length)];
+}
+
+function makeHoledGrid(rows, cols, holePercent) {
+  const { holes, validTotal, validCells } = makeHoles(rows, cols, holePercent);
+  const start = pickRandomStart(validCells);
+  return { holes, validTotal, start };
+}
+
+function growWalk(rows, cols, holes, start) {
+  const visited = new Set([key(...start)]);
+  const path = [start];
+  let cur = start;
+  while (true) {
+    const ns = neighbors(cur[0],cur[1],rows,cols,holes).filter(([r,c])=>!visited.has(key(r,c)));
+    if (ns.length===0) break;
+    cur = ns[Math.floor(Math.random()*ns.length)];
+    visited.add(key(...cur));
+    path.push(cur);
+  }
+  return path;
+}
+
+function attemptUntilThreshold(rows, cols, holes, start, validTotal, threshold, maxAttempts) {
+  const target = Math.ceil(validTotal*threshold);
+  let best = null;
+  for (let a=1;a<=maxAttempts;a++){
+    const path = growWalk(rows,cols,holes,start);
+    if (!best || path.length>best.length) best = path;
+    if (path.length>=target) return { success:true, attempts:a, path, target };
+  }
+  return { success:false, attempts:maxAttempts, path:best, target };
+}
+
+function runSolver(rows, cols, path, blockedHoles) {
+  const stats = { deadEnds:0, branches:0, nodesVisited:0 };
+  const visited = new Set();
+  const validSet = new Set(path.map(([r,c])=>key(r,c)));
+  const TOTAL = path.length;
+  const NODE_BUDGET = 20000; // safety cap — some instances blow up combinatorially (NP-hard worst case)
+  stats.capped = false;
+  function solve(r,c,count){
+    if (count===TOTAL) return true;
+    if (stats.nodesVisited >= NODE_BUDGET) { stats.capped = true; return true; } // bail out, treat as solved-enough
+    const ns = neighbors(r,c,rows,cols,blockedHoles).filter(([nr,nc])=>validSet.has(key(nr,nc)) && !visited.has(key(nr,nc)));
+    if (ns.length===0){ stats.deadEnds++; return false; }
+    if (ns.length>=2) stats.branches++;
+    for (const [nr,nc] of ns){
+      visited.add(key(nr,nc));
+      stats.nodesVisited++;
+      if (solve(nr,nc,count+1)) return true;
+      visited.delete(key(nr,nc));
+    }
+    return false;
+  }
+  visited.add(key(...path[0]));
+  solve(path[0][0],path[0][1],1);
+  return stats;
+}
+
+function calcScore(stats, N) {
+  const deadEndScore = Math.min(stats.deadEnds/(N*2),1.0);
+  const branchScore  = Math.min(stats.branches/N,1.0);
+  const nodesScore   = Math.min(stats.nodesVisited/(N*N),1.0);
+  return Math.round((deadEndScore*0.50 + branchScore*0.30 + nodesScore*0.20)*100);
+}
+function classify(score){ if (score<30) return 'Easy'; if (score<65) return 'Medium'; return 'Hard'; }
+
+function getParams() {
+  return {
+    rows: parseInt(document.getElementById('rows').value),
+    cols: parseInt(document.getElementById('cols').value),
+    holePct: parseInt(document.getElementById('holePct').value)/100,
+    acceptPct: parseInt(document.getElementById('acceptPct').value)/100,
+    maxAttempts: parseInt(document.getElementById('maxAttempts').value),
+    trials: parseInt(document.getElementById('trials').value)
+  };
+}
+
+function renderGridInto(el, rows, cols, holes, path, start, cellSize) {
+  cellSize = cellSize || 36;
+  el.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+  el.innerHTML = '';
+  const order = {};
+  path.forEach(([r,c],i) => { order[key(r,c)] = i+1; });
+  for (let r=0;r<rows;r++) for (let c=0;c<cols;c++){
+    const div = document.createElement('div');
+    const k = key(r,c);
+    div.className = 'cell';
+    div.style.width = cellSize+'px';
+    div.style.height = cellSize+'px';
+    div.style.fontSize = (cellSize <= 24 ? 9 : 12) + 'px';
+    if (holes.has(k)) { div.classList.add('hole'); div.textContent = ''; }
+    else if (order[k] !== undefined) { div.classList.add('walked'); div.textContent = order[k]; }
+    else { div.classList.add('unwalked'); div.textContent = '·'; }
+    if (r===start[0] && c===start[1]) div.classList.add('start');
+    el.appendChild(div);
+  }
+}
+function renderGrid(rows, cols, holes, path, start) {
+  renderGridInto(document.getElementById('grid'), rows, cols, holes, path, start, 36);
+}
+
+document.getElementById('runOne').addEventListener('click', () => {
+  const p = getParams();
+  const { holes, validTotal, start } = makeHoledGrid(p.rows, p.cols, p.holePct);
+  const result = attemptUntilThreshold(p.rows, p.cols, holes, start, validTotal, p.acceptPct, p.maxAttempts);
+  renderGrid(p.rows, p.cols, holes, result.path, start);
+  const single = document.getElementById('single');
+  if (!result.success) {
+    single.innerHTML = `<span class="badge Fail">FAIL</span> ไม่ถึง accept rate ภายใน ${p.maxAttempts} attempts (coverage สูงสุดที่ได้ ${(result.path.length/validTotal*100).toFixed(1)}%)`;
+    return;
+  }
+  const stats = runSolver(p.rows, p.cols, result.path, holes);
+  const score = calcScore(stats, result.path.length);
+  const level = classify(score);
+  single.innerHTML = `
+    success ภายใน <b>${result.attempts}</b> attempts, coverage <b>${(result.path.length/validTotal*100).toFixed(1)}%</b>
+    (${result.path.length}/${validTotal} ช่อง)<br>
+    deadEnds=${stats.deadEnds} branches=${stats.branches} nodesVisited=${stats.nodesVisited}<br>
+    score = <b>${score}</b> <span class="badge ${level}">${level}</span>
+    ${stats.capped ? '<br><span style="color:#993c1d;font-size:12px;">(solver ชนเพดาน 20,000 nodes — instance นี้ explode ทาง combinatorics, score เป็นค่าประมาณขั้นต่ำ)</span>' : ''}
+  `;
+});
+
+document.getElementById('runBatch').addEventListener('click', () => {
+  const p = getParams();
+  const fixHoles = document.getElementById('fixHoles').checked;
+  const log = document.getElementById('log');
+  log.textContent = `กำลังรัน ${p.trials} trials...`;
+  setTimeout(() => {
+    let successes = 0;
+    const attemptsArr = [], scoreArr = [], coverageArr = [], startsUsed = [];
+
+    // ถ้า fixHoles: สุ่มรูครั้งเดียว ใช้ตลอด batch แล้วสุ่มแค่จุดเริ่มใหม่ทุก trial
+    const fixed = fixHoles ? makeHoles(p.rows, p.cols, p.holePct) : null;
+
+    for (let t=0;t<p.trials;t++){
+      let holes, validTotal, start;
+      if (fixHoles) {
+        holes = fixed.holes; validTotal = fixed.validTotal;
+        start = pickRandomStart(fixed.validCells);
+      } else {
+        ({ holes, validTotal, start } = makeHoledGrid(p.rows, p.cols, p.holePct));
+      }
+      startsUsed.push(key(...start));
+      const result = attemptUntilThreshold(p.rows, p.cols, holes, start, validTotal, p.acceptPct, p.maxAttempts);
+      attemptsArr.push(result.attempts);
+      coverageArr.push(result.path.length/validTotal);
+      if (result.success) {
+        successes++;
+        const stats = runSolver(p.rows, p.cols, result.path, holes);
+        scoreArr.push(calcScore(stats, result.path.length));
+      }
+    }
+    const mean = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
+    const successRate = successes/p.trials;
+    const uniqueStarts = new Set(startsUsed).size;
+    const rows = [
+      ['success rate', (successRate*100).toFixed(1)+'%', successRate>=0.8?'hi':successRate>=0.5?'mid':'lo'],
+      ['mean attempts', mean(attemptsArr).toFixed(1), ''],
+      ['mean coverage', (mean(coverageArr)*100).toFixed(1)+'%', ''],
+      ['mean score (n='+scoreArr.length+')', scoreArr.length ? mean(scoreArr).toFixed(1) : 'n/a', ''],
+    ];
+    if (fixHoles) rows.push(['unique start points used', uniqueStarts+'/'+p.trials, '']);
+    const tbody = document.querySelector('#summary tbody');
+    tbody.innerHTML = rows.map(([k,v,cls]) => `<tr><td>${k}</td><td class="${cls}">${v}</td></tr>`).join('');
+    log.textContent = `เสร็จ — ${p.rows}x${p.cols}, รู ${(p.holePct*100).toFixed(0)}%, accept ${(p.acceptPct*100).toFixed(0)}%, max ${p.maxAttempts} attempts/trial` +
+      (fixHoles ? ' [hole pattern คงที่ตลอด batch]' : ' [สุ่มรูใหม่ทุก trial]');
+  }, 10);
+});
+
+document.getElementById('runCompare').addEventListener('click', () => {
+  const p = getParams();
+  const n = parseInt(document.getElementById('compareCount').value);
+  const wrap = document.getElementById('compareWrap');
+  wrap.innerHTML = '';
+  const { holes, validTotal, validCells } = makeHoles(p.rows, p.cols, p.holePct);
+  const cellSize = p.rows > 8 || p.cols > 8 ? 22 : 28;
+  for (let i = 0; i < n; i++) {
+    const start = pickRandomStart(validCells);
+    const result = attemptUntilThreshold(p.rows, p.cols, holes, start, validTotal, p.acceptPct, p.maxAttempts);
+    const card = document.createElement('div');
+    card.style.border = '1px solid #ddd';
+    card.style.borderRadius = '8px';
+    card.style.padding = '8px';
+    card.style.background = '#fff';
+    const info = document.createElement('div');
+    info.style.fontSize = '11px';
+    info.style.color = '#555';
+    info.style.marginBottom = '6px';
+    if (result.success) {
+      const stats = runSolver(p.rows, p.cols, result.path, holes);
+      const score = calcScore(stats, result.path.length);
+      const level = classify(score);
+      info.innerHTML = `start=(${start[0]},${start[1]}) attempts=${result.attempts}<br>coverage=${(result.path.length/validTotal*100).toFixed(0)}% score=${score} <span class="badge ${level}">${level}</span>`;
+    } else {
+      info.innerHTML = `start=(${start[0]},${start[1]}) <span class="badge Fail">FAIL</span><br>coverage สูงสุด ${(result.path.length/validTotal*100).toFixed(0)}%`;
+    }
+    card.appendChild(info);
+    const gridEl = document.createElement('div');
+    gridEl.style.display = 'inline-grid';
+    gridEl.style.gap = '1px';
+    card.appendChild(gridEl);
+    renderGridInto(gridEl, p.rows, p.cols, holes, result.path, start, cellSize);
+    wrap.appendChild(card);
+  }
+});
+
+document.getElementById('runOne').click();
+</script>
+</body>
+</html>

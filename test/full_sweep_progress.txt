@@ -1,0 +1,14 @@
+progress: 25/325 combos, 1.4s elapsed
+progress: 50/325 combos, 2.9s elapsed
+progress: 75/325 combos, 5.1s elapsed
+progress: 100/325 combos, 7.9s elapsed
+progress: 125/325 combos, 10.9s elapsed
+progress: 150/325 combos, 14.1s elapsed
+progress: 175/325 combos, 18.0s elapsed
+progress: 200/325 combos, 23.0s elapsed
+progress: 225/325 combos, 28.5s elapsed
+progress: 250/325 combos, 35.9s elapsed
+progress: 275/325 combos, 44.6s elapsed
+progress: 300/325 combos, 55.4s elapsed
+progress: 325/325 combos, 67.4s elapsed
+DONE: 325 combos in 67.4s
